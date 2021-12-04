@@ -5,7 +5,7 @@ use adventofcode_2021::utils::read_lines;
 /// # Errors
 ///
 /// can't produce error
-pub fn part_1<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Error>> {
+pub fn part_1<T: AsRef<str>>(_data: &[T]) -> Result<isize, Box<dyn std::error::Error>> {
     todo!()
 }
 
@@ -14,7 +14,7 @@ pub fn part_1<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Er
 /// # Errors
 ///
 /// can't produce error
-pub fn part_2<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Error>> {
+pub fn part_2<T: AsRef<str>>(_data: &[T]) -> Result<isize, Box<dyn std::error::Error>> {
     todo!()
 }
 
