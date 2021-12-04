@@ -1,72 +1,74 @@
-use std::{path::PathBuf, str::FromStr};
+use std::path::PathBuf;
 
-use adventofcode_2021::{matrix::Matrix2D, AocError};
+use adventofcode_2021::{AocError, Matrix2D};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Mark {
     Checked,
     Unchecked,
 }
-#[derive(Clone)]
-pub struct MyMatrix(Matrix2D<(usize, Mark)>);
 
-impl FromStr for MyMatrix {
-    type Err = AocError;
+type DayMatrix = Matrix2D<(usize, Mark)>;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let height = s.lines().count();
+#[must_use]
+pub fn daymatrix_from_str(s: &str) -> DayMatrix {
+    let height = s.lines().count();
 
-        let values: Vec<_> = s
-            .lines()
-            .flat_map(|line| line.trim().split_whitespace())
-            .map(str::trim)
-            .map(str::parse)
-            .map(Result::unwrap)
-            .map(|v| (v, Mark::Unchecked))
-            .collect();
+    let values: Vec<_> = s
+        .lines()
+        .flat_map(|line| line.trim().split_whitespace())
+        .map(str::trim)
+        .map(str::parse)
+        .map(Result::unwrap)
+        .map(|v| (v, Mark::Unchecked))
+        .collect();
 
-        let width = values.len() / height;
+    let width = values.len() / height;
 
-        Ok(MyMatrix(Matrix2D {
-            width,
-            height,
-            values,
-        }))
+    DayMatrix {
+        width,
+        height,
+        values,
     }
 }
 
-impl MyMatrix {
-    pub fn mark_value_checked(&mut self, val: usize) {
-        if let Some(value) = self.0.values.iter_mut().find(|v| v.0 == val) {
+pub trait MarkMatrix {
+    fn mark_value_checked(&mut self, val: usize);
+    fn has_winning_row(&self) -> bool;
+    fn has_winning_col(&self) -> bool;
+    fn is_winning(&self) -> bool;
+    fn unmarked_sum(&self) -> usize;
+}
+
+impl MarkMatrix for DayMatrix {
+    fn mark_value_checked(&mut self, val: usize) {
+        if let Some(value) = self.values.iter_mut().find(|v| v.0 == val) {
             *value = (val, Mark::Checked);
         }
     }
 
     #[must_use]
-    pub fn has_winning_row(&self) -> bool {
-        self.0
-            .rows()
+    fn has_winning_row(&self) -> bool {
+        self.rows()
             .iter()
             .any(|row| row.iter().all(|&(_, mark)| mark == Mark::Checked))
     }
 
     #[must_use]
-    pub fn has_winning_col(&self) -> bool {
-        self.0
-            .cols()
+    fn has_winning_col(&self) -> bool {
+        self.cols()
             .iter()
             .any(|col| col.iter().all(|&(_, mark)| mark == Mark::Checked))
     }
 
     #[must_use]
-    pub fn is_winning(&self) -> bool {
+    fn is_winning(&self) -> bool {
         self.has_winning_col() || self.has_winning_row()
     }
 
     #[must_use]
-    pub fn unmarked_sum(&self) -> usize {
-        self.0
-            .values
+    fn unmarked_sum(&self) -> usize {
+        self.values
             .iter()
             .filter(|&(_, v)| v == &Mark::Unchecked)
             .map(|(u, _)| u)
@@ -79,7 +81,7 @@ impl MyMatrix {
 /// # Errors
 ///
 /// can't produce error
-pub fn part_1(tirage: &[usize], cards: &mut Vec<MyMatrix>) -> Result<usize, AocError> {
+pub fn part_1(tirage: &[usize], cards: &mut Vec<DayMatrix>) -> Result<usize, AocError> {
     if tirage.is_empty() {
         return Err(AocError::ParsingError);
     }
@@ -88,7 +90,7 @@ pub fn part_1(tirage: &[usize], cards: &mut Vec<MyMatrix>) -> Result<usize, AocE
     for val in tirage.iter() {
         last_tirage = Some(*val);
         cards.iter_mut().for_each(|s| s.mark_value_checked(*val));
-        if cards.iter().any(MyMatrix::is_winning) {
+        if cards.iter().any(DayMatrix::is_winning) {
             break;
         }
     }
@@ -100,15 +102,14 @@ pub fn part_1(tirage: &[usize], cards: &mut Vec<MyMatrix>) -> Result<usize, AocE
 
     Ok(last_tirage.ok_or(AocError::ParsingError)? * matrix_found.unmarked_sum())
 }
-
-/// Process data for a given step
+// Process data for ap
 ///
 /// # Errors
 ///
-/// can't produce error
+/// can't produce erro
 pub fn part_2(
     tirage: &[usize],
-    cards: &mut Vec<MyMatrix>,
+    cards: &mut Vec<DayMatrix>,
 ) -> Result<usize, Box<dyn std::error::Error>> {
     let mut new_cards = cards.clone();
     for val in tirage.iter() {
@@ -119,12 +120,10 @@ pub fn part_2(
         new_cards = new_cards
             .iter()
             .filter(|c| !c.is_winning())
-            .map(|c| {
-                MyMatrix(Matrix2D {
-                    width: c.0.width,
-                    height: c.0.height,
-                    values: c.0.values.clone(),
-                })
+            .map(|c| DayMatrix {
+                width: c.width,
+                height: c.height,
+                values: c.values.clone(),
             })
             .collect();
         if new_cards.len() == 1 {
@@ -132,11 +131,11 @@ pub fn part_2(
         }
     }
 
-    let mut matrix_found = MyMatrix(Matrix2D {
-        width: new_cards[0].0.width,
-        height: new_cards[0].0.height,
-        values: new_cards[0].0.values.clone(),
-    });
+    let mut matrix_found = DayMatrix {
+        width: new_cards[0].width,
+        height: new_cards[0].height,
+        values: new_cards[0].values.clone(),
+    };
 
     let mut last_tirage = None;
     for val in tirage.iter() {
@@ -151,20 +150,15 @@ pub fn part_2(
 }
 
 #[must_use]
-pub fn extract_data(data: &str) -> (Vec<usize>, Vec<MyMatrix>) {
+pub fn extract_data(data: &str) -> (Vec<usize>, Vec<DayMatrix>) {
     let blocks: Vec<_> = data.split("\n\n").collect();
-
     let tirage: Vec<usize> = blocks[0]
         .split(',')
         .map(str::parse)
         .map(Result::unwrap)
         .collect();
 
-    let cards: Vec<_> = blocks[1..]
-        .iter()
-        .map(|s| MyMatrix::from_str(s))
-        .map(Result::unwrap)
-        .collect();
+    let cards: Vec<_> = blocks[1..].iter().map(|s| daymatrix_from_str(s)).collect();
     (tirage, cards)
 }
 

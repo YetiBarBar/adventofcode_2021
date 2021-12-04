@@ -1,4 +1,5 @@
 #[derive(Clone)]
+#[allow(clippy::module_name_repetitions)]
 pub struct Matrix2D<T: Clone> {
     pub width: usize,
     pub height: usize,
