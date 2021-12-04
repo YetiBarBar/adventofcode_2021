@@ -1,6 +1,6 @@
-use std::{fmt::Display, path::PathBuf, str::FromStr};
+use std::{path::PathBuf, str::FromStr};
 
-use adventofcode_2021::AocError;
+use adventofcode_2021::{matrix::Matrix2D, AocError};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Mark {
@@ -8,89 +8,52 @@ pub enum Mark {
     Unchecked,
 }
 #[derive(Clone)]
-pub struct MyMatrix {
-    dimension_h: usize,
-    dimension_v: usize,
-    values: Vec<(usize, Mark)>,
-}
+pub struct MyMatrix(Matrix2D<(usize, Mark)>);
 
 impl FromStr for MyMatrix {
     type Err = AocError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let dimension_v = s.lines().count();
+        let height = s.lines().count();
 
         let values: Vec<_> = s
             .lines()
             .flat_map(|line| line.trim().split_whitespace())
-            .map(|s| (s.trim().parse::<usize>().unwrap(), Mark::Unchecked))
+            .map(str::trim)
+            .map(str::parse)
+            .map(Result::unwrap)
+            .map(|v| (v, Mark::Unchecked))
             .collect();
-        let dimension_h = values.len() / dimension_v;
 
-        Ok(MyMatrix {
-            dimension_h,
-            dimension_v,
+        let width = values.len() / height;
+
+        Ok(MyMatrix(Matrix2D {
+            width,
+            height,
             values,
-        })
-    }
-}
-
-impl Display for MyMatrix {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut res = String::new();
-        for idx in 0..self.dimension_v {
-            res.push_str(&format!(
-                "{:?}",
-                &self.values[idx * self.dimension_h..self.dimension_h * (idx + 1)]
-            ));
-            res.push('\n');
-        }
-        write!(f, "{}", res)
+        }))
     }
 }
 
 impl MyMatrix {
-    pub fn check_value(&mut self, val: usize) {
-        if let Some(value) = self.values.iter_mut().find(|v| v.0 == val) {
+    pub fn mark_value_checked(&mut self, val: usize) {
+        if let Some(value) = self.0.values.iter_mut().find(|v| v.0 == val) {
             *value = (val, Mark::Checked);
         }
     }
 
     #[must_use]
-    pub fn row(&self, idx: usize) -> Vec<(usize, Mark)> {
-        self.values[idx * self.dimension_h..self.dimension_h * (idx + 1)].to_vec()
-    }
-
-    #[must_use]
-    pub fn col(&self, idx: usize) -> Vec<(usize, Mark)> {
-        self.values
-            .iter()
-            .skip(idx)
-            .step_by(self.dimension_h)
-            .copied()
-            .collect()
-    }
-
-    #[must_use]
-    pub fn cols(&self) -> Vec<Vec<(usize, Mark)>> {
-        (0..self.dimension_h).map(|idx| self.col(idx)).collect()
-    }
-
-    #[must_use]
-    pub fn rows(&self) -> Vec<Vec<(usize, Mark)>> {
-        (0..self.dimension_v).map(|idx| self.row(idx)).collect()
-    }
-
-    #[must_use]
     pub fn has_winning_row(&self) -> bool {
-        self.rows()
+        self.0
+            .rows()
             .iter()
             .any(|row| row.iter().all(|&(_, mark)| mark == Mark::Checked))
     }
 
     #[must_use]
     pub fn has_winning_col(&self) -> bool {
-        self.cols()
+        self.0
+            .cols()
             .iter()
             .any(|col| col.iter().all(|&(_, mark)| mark == Mark::Checked))
     }
@@ -102,7 +65,8 @@ impl MyMatrix {
 
     #[must_use]
     pub fn unmarked_sum(&self) -> usize {
-        self.values
+        self.0
+            .values
             .iter()
             .filter(|&(_, v)| v == &Mark::Unchecked)
             .map(|(u, _)| u)
@@ -123,14 +87,18 @@ pub fn part_1(tirage: &[usize], cards: &mut Vec<MyMatrix>) -> Result<usize, AocE
 
     for val in tirage.iter() {
         last_tirage = Some(*val);
-        cards.iter_mut().for_each(|s| s.check_value(*val));
+        cards.iter_mut().for_each(|s| s.mark_value_checked(*val));
         if cards.iter().any(MyMatrix::is_winning) {
             break;
         }
     }
 
-    let matrix_found = cards.iter().find(|c| c.is_winning()).unwrap();
-    Ok(last_tirage.unwrap() * matrix_found.unmarked_sum())
+    let matrix_found = cards
+        .iter()
+        .find(|c| c.is_winning())
+        .ok_or(AocError::ParsingError)?;
+
+    Ok(last_tirage.ok_or(AocError::ParsingError)? * matrix_found.unmarked_sum())
 }
 
 /// Process data for a given step
@@ -145,14 +113,18 @@ pub fn part_2(
     let mut new_cards = cards.clone();
     for val in tirage.iter() {
         // last_tirage = Some(*val);
-        new_cards.iter_mut().for_each(|s| s.check_value(*val));
+        new_cards
+            .iter_mut()
+            .for_each(|s| s.mark_value_checked(*val));
         new_cards = new_cards
             .iter()
             .filter(|c| !c.is_winning())
-            .map(|c| MyMatrix {
-                dimension_h: c.dimension_h,
-                dimension_v: c.dimension_v,
-                values: c.values.clone(),
+            .map(|c| {
+                MyMatrix(Matrix2D {
+                    width: c.0.width,
+                    height: c.0.height,
+                    values: c.0.values.clone(),
+                })
             })
             .collect();
         if new_cards.len() == 1 {
@@ -160,22 +132,22 @@ pub fn part_2(
         }
     }
 
-    let mut matrix_found = MyMatrix {
-        dimension_h: new_cards[0].dimension_h,
-        dimension_v: new_cards[0].dimension_v,
-        values: new_cards[0].values.clone(),
-    };
+    let mut matrix_found = MyMatrix(Matrix2D {
+        width: new_cards[0].0.width,
+        height: new_cards[0].0.height,
+        values: new_cards[0].0.values.clone(),
+    });
 
     let mut last_tirage = None;
     for val in tirage.iter() {
         last_tirage = Some(*val);
-        matrix_found.check_value(*val);
+        matrix_found.mark_value_checked(*val);
         if matrix_found.is_winning() {
             break;
         }
     }
 
-    Ok(last_tirage.unwrap() * matrix_found.unmarked_sum())
+    Ok(last_tirage.ok_or(AocError::ParsingError)? * matrix_found.unmarked_sum())
 }
 
 #[must_use]

@@ -1,5 +1,5 @@
 use thiserror::Error;
-
+pub mod matrix;
 pub mod submarine;
 pub mod utils;
 
