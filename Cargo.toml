@@ -22,3 +22,4 @@ name = "day4"
 path = "src/day4.rs"
 
 [dependencies]
+thiserror = "1.0.30"
