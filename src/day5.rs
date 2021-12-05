@@ -1,11 +1,11 @@
 use std::{collections::HashMap, fmt::Debug, str::FromStr};
 
-use adventofcode_2021::{utils::read_lines, AocError, Matrix2D};
+use adventofcode_2021::{utils::read_lines, AocError};
 
 #[derive(Debug, PartialEq)]
 pub struct Point {
-    x: usize,
-    y: usize,
+    x: isize,
+    y: isize,
 }
 
 impl FromStr for Point {
@@ -59,85 +59,61 @@ impl FromStr for Segment {
 }
 
 impl Segment {
+    #[must_use]
     pub fn is_h(&self) -> bool {
         self.a.y == self.b.y
     }
 
+    #[must_use]
     pub fn is_v(&self) -> bool {
         self.a.x == self.b.x
     }
 
+    #[must_use]
     pub fn is_diagonal(&self) -> bool {
-        let d_y = isize::try_from(self.a.y).unwrap() - isize::try_from(self.b.y).unwrap();
-        let d_x = isize::try_from(self.a.x).unwrap() - isize::try_from(self.b.x).unwrap();
+        let d_y = self.a.y - self.b.y;
+        let d_x = self.a.x - self.b.x;
         d_y.abs() == d_x.abs()
     }
 
+    #[must_use]
     pub fn is_h_or_v(&self) -> bool {
         self.is_h() || self.is_v()
     }
 
+    #[must_use]
     pub fn h_points(&self) -> Vec<Point> {
         if self.is_h() {
-            let min;
-            let max;
-            if self.a.x < self.b.x {
-                min = self.a.x;
-                max = self.b.x;
-            } else {
-                min = self.b.x;
-                max = self.a.x;
-            }
+            let min = self.a.x.min(self.b.x);
+            let max = self.a.x.max(self.b.x);
             (min..=max).map(|x| Point { x, y: self.b.y }).collect()
         } else {
             vec![]
         }
     }
 
+    #[must_use]
     pub fn v_points(&self) -> Vec<Point> {
         if self.is_v() {
-            let min;
-            let max;
-            if self.a.y < self.b.y {
-                min = self.a.y;
-                max = self.b.y;
-            } else {
-                min = self.b.y;
-                max = self.a.y;
-            }
+            let min = self.a.y.min(self.b.y);
+            let max = self.a.y.max(self.b.y);
+
             (min..=max).map(|y| Point { x: self.b.x, y }).collect()
         } else {
             vec![]
         }
     }
 
+    #[must_use]
     pub fn diag_points(&self) -> Vec<Point> {
         if self.is_diagonal() {
-            let min_y;
-            let max_y;
-            let p1;
-            let p2;
-            if self.a.y < self.b.y {
-                min_y = self.a.y;
-                max_y = self.b.y;
-                p1 = &self.a;
-            } else {
-                min_y = self.b.y;
-                max_y = self.a.y;
-                p1 = &self.b;
-            }
-            let min_x;
-            let max_x;
-            if self.a.x < self.b.x {
-                min_x = self.a.x;
-                max_x = self.b.x;
-                p2 = &self.a;
-            } else {
-                min_x = self.b.x;
-                max_x = self.a.x;
-                p2 = &self.b;
-            }
-            if p1 == p2 {
+            let min_x = self.a.x.min(self.b.x);
+            let max_x = self.a.x.max(self.b.x);
+            let min_y = self.a.y.min(self.b.y);
+            let max_y = self.a.y.max(self.b.y);
+
+            let p = Point { x: min_x, y: min_y };
+            if p == self.a || p == self.b {
                 (min_x..=max_x)
                     .zip(min_y..=max_y)
                     .map(|(x, y)| Point { x, y })
@@ -232,7 +208,7 @@ mod tests {
         assert_eq!(
             Segment::from_str(&segment).unwrap(),
             Segment {
-                a: Point { x: 0_usize, y: 9 },
+                a: Point { x: 0, y: 9 },
                 b: Point { x: 5, y: 9 }
             }
         );
