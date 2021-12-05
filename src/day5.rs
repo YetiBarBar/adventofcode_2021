@@ -13,20 +13,20 @@ impl FromStr for Point {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts: Vec<_> = s.split(',').collect();
-        let x = parts
-            .get(0)
-            .ok_or(AocError::ParsingError)?
-            .trim()
-            .parse()
-            .map_err(|_| AocError::ParsingError)?;
-        let y = parts
-            .get(1)
-            .ok_or(AocError::ParsingError)?
-            .trim()
-            .parse()
-            .map_err(|_| AocError::ParsingError)?;
+        let x = parse_part(&parts, 0)?;
+        let y = parse_part(&parts, 1)?;
+
         Ok(Point { x, y })
     }
+}
+
+fn parse_part<T: FromStr>(parts: &[&str], idx: usize) -> Result<T, AocError> {
+    Ok(parts
+        .get(idx)
+        .ok_or(AocError::ParsingError)?
+        .trim()
+        .parse()
+        .map_err(|_| AocError::ParsingError)?)
 }
 
 #[derive(Debug, PartialEq)]
@@ -41,31 +41,21 @@ impl FromStr for Segment {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts: Vec<_> = s.split("->").collect();
 
-        let a = parts
-            .get(0)
-            .ok_or(AocError::ParsingError)?
-            .trim()
-            .parse::<Point>()
-            .map_err(|_| AocError::ParsingError)?;
+        let a = parse_part(&parts, 0)?;
+        let b = parse_part(&parts, 1)?;
 
-        let b = parts
-            .get(1)
-            .ok_or(AocError::ParsingError)?
-            .trim()
-            .parse::<Point>()
-            .map_err(|_| AocError::ParsingError)?;
         Ok(Segment { a, b })
     }
 }
 
 impl Segment {
     #[must_use]
-    pub fn is_h(&self) -> bool {
+    pub fn is_horizontal(&self) -> bool {
         self.a.y == self.b.y
     }
 
     #[must_use]
-    pub fn is_v(&self) -> bool {
+    pub fn is_vertical(&self) -> bool {
         self.a.x == self.b.x
     }
 
@@ -78,12 +68,12 @@ impl Segment {
 
     #[must_use]
     pub fn is_h_or_v(&self) -> bool {
-        self.is_h() || self.is_v()
+        self.is_horizontal() || self.is_vertical()
     }
 
     #[must_use]
     pub fn h_points(&self) -> Vec<Point> {
-        if self.is_h() {
+        if self.is_horizontal() {
             let min = self.a.x.min(self.b.x);
             let max = self.a.x.max(self.b.x);
             (min..=max).map(|x| Point { x, y: self.b.y }).collect()
@@ -94,7 +84,7 @@ impl Segment {
 
     #[must_use]
     pub fn v_points(&self) -> Vec<Point> {
-        if self.is_v() {
+        if self.is_vertical() {
             let min = self.a.y.min(self.b.y);
             let max = self.a.y.max(self.b.y);
 
@@ -134,11 +124,10 @@ impl Segment {
 ///
 /// # Errors
 ///
-/// can't produce error
+/// TBD
 pub fn part_1(data: &[Segment]) -> Result<usize, Box<dyn std::error::Error>> {
     let mut hmap = HashMap::new();
     data.iter()
-        .filter(|s| s.is_h_or_v())
         .flat_map(|s| {
             let mut v = s.h_points();
             v.extend(s.v_points());
@@ -159,11 +148,10 @@ pub fn part_1(data: &[Segment]) -> Result<usize, Box<dyn std::error::Error>> {
 ///
 /// # Errors
 ///
-/// can't produce error
+/// TBD
 pub fn part_2(data: &[Segment]) -> Result<usize, Box<dyn std::error::Error>> {
     let mut hmap = HashMap::new();
     data.iter()
-        .filter(|s| s.is_h_or_v() || s.is_diagonal())
         .flat_map(|s| {
             let mut v = s.h_points();
             v.extend(s.v_points());
