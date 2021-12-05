@@ -221,7 +221,6 @@ mod tests {
             .map(|l| Segment::from_str(l).unwrap())
             .collect();
         assert_eq!(part_1(&input).unwrap(), 5);
-        assert!(true);
     }
     #[test]
     fn test_day5_step2() {
