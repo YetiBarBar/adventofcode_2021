@@ -81,14 +81,14 @@ impl MarkMatrix for DayMatrix {
 /// # Errors
 ///
 /// can't produce error
-pub fn part_1(tirage: &[usize], cards: &mut Vec<DayMatrix>) -> Result<usize, AocError> {
-    if tirage.is_empty() {
+pub fn part_1(draw: &[usize], cards: &mut [DayMatrix]) -> Result<usize, AocError> {
+    if draw.is_empty() {
         return Err(AocError::ParsingError);
     }
-    let mut last_tirage = None;
+    let mut last_draw = None;
 
-    for val in tirage.iter() {
-        last_tirage = Some(*val);
+    for val in draw.iter() {
+        last_draw = Some(*val);
         cards.iter_mut().for_each(|s| s.mark_value_checked(*val));
         if cards.iter().any(DayMatrix::is_winning) {
             break;
@@ -100,24 +100,19 @@ pub fn part_1(tirage: &[usize], cards: &mut Vec<DayMatrix>) -> Result<usize, Aoc
         .find(|c| c.is_winning())
         .ok_or(AocError::ParsingError)?;
 
-    Ok(last_tirage.ok_or(AocError::ParsingError)? * matrix_found.unmarked_sum())
+    Ok(last_draw.ok_or(AocError::ParsingError)? * matrix_found.unmarked_sum())
 }
+
 // Process data for ap
 ///
 /// # Errors
 ///
 /// can't produce erro
-pub fn part_2(
-    tirage: &[usize],
-    cards: &mut Vec<DayMatrix>,
-) -> Result<usize, Box<dyn std::error::Error>> {
-    let mut new_cards = cards.clone();
-    for val in tirage.iter() {
-        // last_tirage = Some(*val);
-        new_cards
-            .iter_mut()
-            .for_each(|s| s.mark_value_checked(*val));
-        new_cards = new_cards
+pub fn part_2(draw: &[usize], cards: &mut [DayMatrix]) -> Result<usize, AocError> {
+    let mut cards = cards.to_vec();
+    for val in draw.iter() {
+        cards.iter_mut().for_each(|s| s.mark_value_checked(*val));
+        cards = cards
             .iter()
             .filter(|c| !c.is_winning())
             .map(|c| DayMatrix {
@@ -126,40 +121,36 @@ pub fn part_2(
                 values: c.values.clone(),
             })
             .collect();
-        if new_cards.len() == 1 {
+        if cards.len() == 1 {
             break;
         }
     }
 
-    let mut matrix_found = DayMatrix {
-        width: new_cards[0].width,
-        height: new_cards[0].height,
-        values: new_cards[0].values.clone(),
-    };
+    let mut matrix_found: DayMatrix = cards.pop().ok_or(AocError::ParsingError)?;
 
-    let mut last_tirage = None;
-    for val in tirage.iter() {
-        last_tirage = Some(*val);
+    let mut last_draw = None;
+    for val in draw.iter() {
+        last_draw = Some(*val);
         matrix_found.mark_value_checked(*val);
         if matrix_found.is_winning() {
             break;
         }
     }
 
-    Ok(last_tirage.ok_or(AocError::ParsingError)? * matrix_found.unmarked_sum())
+    Ok(last_draw.ok_or(AocError::ParsingError)? * matrix_found.unmarked_sum())
 }
 
 #[must_use]
 pub fn extract_data(data: &str) -> (Vec<usize>, Vec<DayMatrix>) {
     let blocks: Vec<_> = data.split("\n\n").collect();
-    let tirage: Vec<usize> = blocks[0]
+    let draw: Vec<usize> = blocks[0]
         .split(',')
         .map(str::parse)
         .map(Result::unwrap)
         .collect();
 
     let cards: Vec<_> = blocks[1..].iter().map(|s| daymatrix_from_str(s)).collect();
-    (tirage, cards)
+    (draw, cards)
 }
 
 /// Process solutions for day 3
@@ -175,9 +166,10 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let input_data = std::fs::read_to_string(filepath).unwrap();
 
-    let (tirage, mut cards) = extract_data(&input_data);
-    println!("{}", part_1(&tirage, &mut cards).unwrap());
-    println!("{}", part_2(&tirage, &mut cards).unwrap());
+    let (draw, mut cards) = extract_data(&input_data);
+    let mut cards_clone = cards.clone();
+    println!("{}", part_1(&draw, &mut cards).unwrap());
+    println!("{}", part_2(&draw, &mut cards_clone).unwrap());
 
     Ok(())
 }
@@ -208,9 +200,9 @@ mod tests {
 22 11 13  6  5
  2  0 12  3  7"#;
 
-        let (tirage, mut cards) = extract_data(data);
+        let (draw, mut cards) = extract_data(data);
 
-        assert_eq!(part_1(&tirage, &mut cards).unwrap(), 4512);
+        assert_eq!(part_1(&draw, &mut cards).unwrap(), 4512);
     }
 
     #[test]
@@ -235,8 +227,8 @@ mod tests {
 22 11 13  6  5
  2  0 12  3  7"#;
 
-        let (tirage, mut cards) = extract_data(data);
+        let (draw, mut cards) = extract_data(data);
 
-        assert_eq!(part_2(&tirage, &mut cards).unwrap(), 1924);
+        assert_eq!(part_2(&draw, &mut cards).unwrap(), 1924);
     }
 }
