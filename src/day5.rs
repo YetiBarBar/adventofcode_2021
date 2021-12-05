@@ -21,12 +21,12 @@ impl FromStr for Point {
 }
 
 fn parse_part<T: FromStr>(parts: &[&str], idx: usize) -> Result<T, AocError> {
-    Ok(parts
+    parts
         .get(idx)
         .ok_or(AocError::ParsingError)?
         .trim()
         .parse()
-        .map_err(|_| AocError::ParsingError)?)
+        .map_err(|_| AocError::ParsingError)
 }
 
 #[derive(Debug, PartialEq)]
@@ -67,8 +67,21 @@ impl Segment {
     }
 
     #[must_use]
-    pub fn is_h_or_v(&self) -> bool {
+    pub fn is_horizontal_or_vertical(&self) -> bool {
         self.is_horizontal() || self.is_vertical()
+    }
+
+    #[must_use]
+    pub fn is_horizontal_vertical_or_diagonal(&self) -> bool {
+        self.is_diagonal() || self.is_horizontal_or_vertical()
+    }
+
+    #[must_use]
+    pub fn points(&self) -> Vec<Point> {
+        let mut res = self.h_points();
+        res.extend(self.v_points());
+        res.extend(self.diag_points());
+        res
     }
 
     #[must_use]
@@ -119,29 +132,13 @@ impl Segment {
         }
     }
 }
-
 /// Process data for a given step
 ///
 /// # Errors
 ///
 /// TBD
-pub fn part_1(data: &[Segment]) -> Result<usize, Box<dyn std::error::Error>> {
-    let mut hmap = HashMap::new();
-    data.iter()
-        .flat_map(|s| {
-            let mut v = s.h_points();
-            v.extend(s.v_points());
-            v
-        })
-        .for_each(|point| {
-            let pos = (point.x, point.y);
-            hmap.entry(pos)
-                .and_modify(|e| {
-                    *e += 1;
-                })
-                .or_insert(1_usize);
-        });
-    Ok(hmap.iter().filter(|&(_, val)| val.ge(&2)).count())
+pub fn part_1(data: &[Segment]) -> Result<usize, AocError> {
+    process(data, Segment::is_horizontal_or_vertical)
 }
 
 /// Process data for a given step
@@ -149,22 +146,26 @@ pub fn part_1(data: &[Segment]) -> Result<usize, Box<dyn std::error::Error>> {
 /// # Errors
 ///
 /// TBD
-pub fn part_2(data: &[Segment]) -> Result<usize, Box<dyn std::error::Error>> {
-    let mut hmap = HashMap::new();
+pub fn part_2(data: &[Segment]) -> Result<usize, AocError> {
+    process(data, Segment::is_horizontal_vertical_or_diagonal)
+}
+
+/// Process data for a given step
+///
+/// # Errors
+///
+/// TBD
+pub fn process(
+    data: &[Segment],
+    seg_condition: impl Fn(&Segment) -> bool,
+) -> Result<usize, AocError> {
+    let mut hmap: HashMap<_, usize> = HashMap::new();
     data.iter()
-        .flat_map(|s| {
-            let mut v = s.h_points();
-            v.extend(s.v_points());
-            v.extend(s.diag_points());
-            v
-        })
+        .filter(|s| seg_condition(s))
+        .flat_map(Segment::points)
         .for_each(|point| {
             let pos = (point.x, point.y);
-            hmap.entry(pos)
-                .and_modify(|e| {
-                    *e += 1;
-                })
-                .or_insert(1_usize);
+            *hmap.entry(pos).or_default() += 1;
         });
     Ok(hmap.iter().filter(|&(_, val)| val.ge(&2)).count())
 }
