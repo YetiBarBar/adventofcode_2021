@@ -1,38 +1,34 @@
 use std::{collections::VecDeque, path::PathBuf};
 
-struct LanternfishGroup {
-    group: VecDeque<u128>,
+pub trait LanternfishGroup {
+    fn populate(&mut self, values: &[usize]);
+    fn turn(&mut self);
+    fn result(&self) -> u128;
 }
 
-impl LanternfishGroup {
-    pub fn new() -> Self {
-        Self {
-            group: VecDeque::<u128>::with_capacity(8),
-        }
-    }
-    pub fn populate(&mut self, values: &[usize]) {
+impl LanternfishGroup for VecDeque<u128> {
+    fn populate(&mut self, values: &[usize]) {
         for idx in 0..=8 {
-            self.group
-                .push_back(values.iter().filter(|&&v| v == idx).count() as u128);
+            self.push_back(values.iter().filter(|&&v| v == idx).count() as u128);
         }
     }
 
-    pub fn turn(&mut self) {
-        let first = self.group.pop_front().unwrap();
-        if let Some(v) = self.group.get_mut(6) {
+    fn turn(&mut self) {
+        let first = self.pop_front().unwrap();
+        if let Some(v) = self.get_mut(6) {
             *v += first;
         }
-        self.group.push_back(first);
+        self.push_back(first);
     }
 
-    pub fn result(&self) -> u128 {
-        self.group.iter().sum()
+    fn result(&self) -> u128 {
+        self.iter().sum()
     }
 }
 
 #[must_use]
 pub fn process(values: &[usize], turns: usize) -> u128 {
-    let mut group = LanternfishGroup::new();
+    let mut group = VecDeque::with_capacity(9);
     group.populate(values);
     for _ in 0..turns {
         group.turn();
