@@ -47,7 +47,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_day6_part1() {
+    fn test_day7_part1() {
         let input = [16_isize, 1, 2, 0, 4, 2, 7, 1, 2, 14];
         assert_eq!(part_1(&input), Some(37));
         assert_eq!(part_2(&input), Some(168));
