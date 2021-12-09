@@ -8,4 +8,6 @@ pub use crate::matrix::Matrix2D;
 pub enum AocError {
     #[error("Incorrect parsing")]
     ParsingError,
+    #[error("IoError")]
+    IoError(#[from] std::io::Error),
 }

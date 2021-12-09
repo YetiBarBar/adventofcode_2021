@@ -130,10 +130,7 @@ pub fn process(values: &[isize], distance: impl Fn(isize, isize) -> isize) -> Op
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Read file to a single string
     let now = std::time::Instant::now();
-    let input_data: Vec<_> = read_lines("day_2021_8.data")?
-        .map(Result::unwrap)
-        //.map(|s| s.to_string())
-        .collect();
+    let input_data: Vec<_> = read_lines("day_2021_8.data")?.map(Result::unwrap).collect();
 
     println!("Part 1: {:?}", part_1(&input_data));
     println!("Part 2: {:?}", part_2(&input_data));

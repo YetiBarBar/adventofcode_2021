@@ -1,11 +1,14 @@
-use adventofcode_2021::utils::read_lines;
+use adventofcode_2021::{utils::read_lines_to_t_iterator, AocError};
 
 /// Process data for a given step
 ///
 /// # Errors
 ///
-/// step has to be gretaer than 1
-pub fn process(data: &[usize], step: usize) -> Result<usize, &str> {
+/// step has to be greater than 1
+pub fn process(data: &[usize], step: usize) -> Result<usize, &'static str> {
+    if data.len().lt(&step) {
+        return Err("Trying to process a step larger than data");
+    }
     match step {
         0 => Err("Invalid step: 0"),
         _ => Ok(data
@@ -20,7 +23,7 @@ pub fn process(data: &[usize], step: usize) -> Result<usize, &str> {
 /// # Errors
 ///
 /// can't produce error
-pub fn part_1(data: &[usize]) -> Result<usize, &str> {
+pub fn part_1(data: &[usize]) -> Result<usize, &'static str> {
     process(data, 2)
 }
 
@@ -29,7 +32,7 @@ pub fn part_1(data: &[usize]) -> Result<usize, &str> {
 /// # Errors
 ///
 /// can't produce error
-pub fn part_2(data: &[usize]) -> Result<usize, &str> {
+pub fn part_2(data: &[usize]) -> Result<usize, &'static str> {
     process(data, 4)
 }
 
@@ -38,14 +41,15 @@ pub fn part_2(data: &[usize]) -> Result<usize, &str> {
 /// # Errors
 ///
 /// May fail if input data cannot be read
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
-    let values: Vec<usize> = read_lines("day_2021_1.data")?
-        .map(Result::unwrap)
-        .map(|l| l.trim().parse::<usize>())
-        .map(Result::unwrap)
-        .collect();
-
+    /* let values: Vec<usize> = read_lines("day_2021_1.data")?
+           .map(Result::unwrap)
+           .map(|l| l.trim().parse::<usize>())
+           .map(Result::unwrap)
+           .collect();
+    */
+    let values: Vec<usize> = read_lines_to_t_iterator("day_2021_1.data").collect();
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));
     let elapsed = now.elapsed();

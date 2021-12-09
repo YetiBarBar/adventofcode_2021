@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::Debug, str::FromStr};
 
-use adventofcode_2021::{utils::read_lines, AocError};
+use adventofcode_2021::{utils::read_lines_to_t_iterator, AocError};
 
 #[derive(Debug, PartialEq)]
 pub struct Point {
@@ -170,21 +170,18 @@ pub fn process(
     Ok(hmap.iter().filter(|&(_, val)| val.ge(&2)).count())
 }
 
-/// Process solutions for day 1
+/// Process solutions for day 5
 ///
 /// # Errors
 ///
 /// May fail if input data cannot be read
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
-    let values: Vec<_> = read_lines("day_2021_5.data")?
-        .map(Result::unwrap)
-        .map(|line| Segment::from_str(&line))
-        .map(Result::unwrap)
-        .collect();
+    let values: Vec<Segment> = read_lines_to_t_iterator("day_2021_5.data").collect();
 
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));
+
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())

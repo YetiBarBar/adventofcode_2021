@@ -1,6 +1,7 @@
 use adventofcode_2021::{
     submarine::{Command, Direction},
     utils::read_lines,
+    AocError,
 };
 
 /// Process data for a given step
@@ -59,12 +60,12 @@ pub fn part_2<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Er
     Ok(horizontal * depth)
 }
 
-/// Process solutions for day 1
+/// Process solutions for day 2
 ///
 /// # Errors
 ///
 /// May fail if input data cannot be read
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
     let values: Vec<_> = read_lines("day_2021_2.data")?.map(Result::unwrap).collect();
 

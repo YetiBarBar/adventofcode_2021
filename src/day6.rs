@@ -1,4 +1,6 @@
-use std::{collections::VecDeque, path::PathBuf};
+use std::collections::VecDeque;
+
+use adventofcode_2021::utils::read_single_string_to_t_vec;
 
 pub trait LanternfishGroup {
     fn populate(&mut self, values: &[usize]);
@@ -43,16 +45,8 @@ pub fn process(values: &[usize], turns: usize) -> u128 {
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let now = std::time::Instant::now();
-    // Read file to a single string
-    let mut filepath: PathBuf = std::env::current_dir().unwrap();
-    filepath.push("data");
-    filepath.push("day_2021_6.data");
 
-    let input_data = std::fs::read_to_string(filepath)?;
-    let values = input_data
-        .split(',')
-        .map(|s| s.trim().parse::<usize>().unwrap())
-        .collect::<Vec<_>>();
+    let values = read_single_string_to_t_vec("day_2021_6.data", ',');
 
     println!("Part 1: {:?}", process(&values, 80));
     println!("Part 2: {:?}", process(&values, 256));
