@@ -24,6 +24,7 @@ pub fn process(values: &[isize], distance: impl Fn(isize, isize) -> isize) -> Op
 ///
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let now = std::time::Instant::now();
     // Read file to a single string
     let mut filepath: PathBuf = std::env::current_dir().unwrap();
     filepath.push("data");
@@ -37,6 +38,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));
+    let elapsed = now.elapsed();
+    println!("Exec time: {} \u{b5}s", elapsed.as_micros());
 
     Ok(())
 }
@@ -47,7 +50,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_day6_part1() {
+    fn test_day7_part1() {
         let input = [16_isize, 1, 2, 0, 4, 2, 7, 1, 2, 14];
         assert_eq!(part_1(&input), Some(37));
         assert_eq!(part_2(&input), Some(168));

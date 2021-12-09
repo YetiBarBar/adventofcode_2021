@@ -176,6 +176,7 @@ pub fn process(
 ///
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let now = std::time::Instant::now();
     let values: Vec<_> = read_lines("day_2021_5.data")?
         .map(Result::unwrap)
         .map(|line| Segment::from_str(&line))
@@ -184,6 +185,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));
+    let elapsed = now.elapsed();
+    println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())
 }
 
