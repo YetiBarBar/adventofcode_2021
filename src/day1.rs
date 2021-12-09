@@ -39,6 +39,7 @@ pub fn part_2(data: &[usize]) -> Result<usize, &str> {
 ///
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let now = std::time::Instant::now();
     let values: Vec<usize> = read_lines("day_2021_1.data")?
         .map(Result::unwrap)
         .map(|l| l.trim().parse::<usize>())
@@ -47,6 +48,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));
+    let elapsed = now.elapsed();
+    println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())
 }
 

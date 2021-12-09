@@ -139,7 +139,7 @@ impl<T: Clone> Matrix2D<T> {
     #[must_use]
     pub fn neighbour_down(&self, x: usize, y: usize) -> Option<T> {
         // x goes from 0..self.width
-        if y.lt(&(self.height - 1)) {
+        if y.le(&(self.height - 1)) {
             self.x_y_to_idx(x, y + 1)
         } else {
             None
@@ -149,7 +149,7 @@ impl<T: Clone> Matrix2D<T> {
     #[must_use]
     pub fn neighbour_down_coord(&self, x: usize, y: usize) -> Option<(usize, usize)> {
         // x goes from 0..self.width
-        if y.lt(&(self.height - 1)) {
+        if y.le(&(self.height - 1)) {
             Some((x, y + 1))
         } else {
             None
@@ -196,12 +196,6 @@ impl<T: Clone> Matrix2D<T> {
     pub fn get_x_y(&self, x: usize, y: usize) -> T {
         self.values[x + y * self.width].clone()
     }
-
-    /* pub fn neighbour_up(&self, x: usize, y: size) -> Option<T> {
-        if y.gt(&0) {
-            self.
-        }
-    } */
 }
 
 #[cfg(test)]
@@ -248,6 +242,9 @@ mod tests {
         assert_eq!(matrix.neighbour_up(1, 1), Some(1));
         assert_eq!(matrix.neighbour_left(3, 1), Some(6));
         assert_eq!(matrix.neighbour_right(3, 1), None);
+        assert_eq!(matrix.neighbour_up(3, 0), None);
+        assert_eq!(matrix.neighbour_down(3, 2), None);
+        assert_eq!(matrix.neighbour_left(0, 2), None);
         assert_eq!(matrix.neighbour_down(3, 1), Some(11));
         assert_eq!(matrix.neighbour_up(3, 1), Some(3));
         assert_eq!(matrix.neighbour(0, 0, false), vec![1, 4]);

@@ -159,6 +159,7 @@ pub fn extract_data(data: &str) -> (Vec<usize>, Vec<DayMatrix>) {
 ///
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let now = std::time::Instant::now();
     // Read file to a single string
     let mut filepath: PathBuf = std::env::current_dir().unwrap();
     filepath.push("data");
@@ -170,6 +171,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut cards_clone = cards.clone();
     println!("{}", part_1(&draw, &mut cards).unwrap());
     println!("{}", part_2(&draw, &mut cards_clone).unwrap());
+    let elapsed = now.elapsed();
+    println!("Exec time: {} \u{b5}s", elapsed.as_micros());
 
     Ok(())
 }

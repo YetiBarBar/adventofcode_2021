@@ -25,7 +25,7 @@ pub fn extract_str_len(input: &str, size: usize) -> Vec<Vec<char>> {
     input
         .split('|')
         .next()
-        .unwrap_or(&"")
+        .unwrap_or("")
         .split(' ')
         .filter(|item| item.len() == size)
         .map(|s| {
@@ -129,7 +129,7 @@ pub fn process(values: &[isize], distance: impl Fn(isize, isize) -> isize) -> Op
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Read file to a single string
-
+    let now = std::time::Instant::now();
     let input_data: Vec<_> = read_lines("day_2021_8.data")?
         .map(Result::unwrap)
         //.map(|s| s.to_string())
@@ -137,7 +137,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Part 1: {:?}", part_1(&input_data));
     println!("Part 2: {:?}", part_2(&input_data));
-
+    let elapsed = now.elapsed();
+    println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())
 }
 

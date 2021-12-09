@@ -42,6 +42,7 @@ pub fn process(values: &[usize], turns: usize) -> u128 {
 ///
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let now = std::time::Instant::now();
     // Read file to a single string
     let mut filepath: PathBuf = std::env::current_dir().unwrap();
     filepath.push("data");
@@ -56,6 +57,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Part 1: {:?}", process(&values, 80));
     println!("Part 2: {:?}", process(&values, 256));
 
+    let elapsed = now.elapsed();
+    println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())
 }
 
