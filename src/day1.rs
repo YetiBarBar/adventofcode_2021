@@ -1,4 +1,4 @@
-use adventofcode_2021::{utils::read_lines_to_t_iterator, AocError};
+use adventofcode_2021::{utils::read_lines_to_vec_t_, AocError};
 
 /// Process data for a given step
 ///
@@ -43,13 +43,8 @@ pub fn part_2(data: &[usize]) -> Result<usize, &'static str> {
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
-    /* let values: Vec<usize> = read_lines("day_2021_1.data")?
-           .map(Result::unwrap)
-           .map(|l| l.trim().parse::<usize>())
-           .map(Result::unwrap)
-           .collect();
-    */
-    let values: Vec<usize> = read_lines_to_t_iterator("day_2021_1.data").collect();
+
+    let values = read_lines_to_vec_t_("day_2021_1.data");
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));
     let elapsed = now.elapsed();

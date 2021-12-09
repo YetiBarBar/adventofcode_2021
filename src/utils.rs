@@ -46,6 +46,19 @@ pub fn read_lines_to_t_iterator<P: AsRef<str>, T: std::str::FromStr>(
 /// # Panics
 ///
 /// Panics if parsing is invalid
+pub fn read_lines_to_vec_t_<P: AsRef<str>, T: std::str::FromStr>(filename: P) -> Vec<T> {
+    read_lines_to_t_iterator(filename.as_ref()).collect()
+}
+
+/// Read a file line by line and try parse each line
+///
+/// # Errors
+///
+/// `IoError` if filename id not valid
+///
+/// # Panics
+///
+/// Panics if parsing is invalid
 pub fn read_single_string_to_t_vec<P: AsRef<str>, T: std::str::FromStr + Clone>(
     filename: P,
     pat: char,
