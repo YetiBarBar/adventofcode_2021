@@ -1,4 +1,4 @@
-use adventofcode_2021::{utils::read_lines_to_vec_t_, AocError};
+use adventofcode_tooling::{read_lines_to_vec_t, AocError};
 
 /// Process data for a given step
 ///
@@ -44,7 +44,7 @@ pub fn part_2(data: &[usize]) -> Result<usize, &'static str> {
 pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
 
-    let values = read_lines_to_vec_t_("day_2021_1.data");
+    let values = read_lines_to_vec_t("day_2021_1.data");
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));
     let elapsed = now.elapsed();

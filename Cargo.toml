@@ -47,3 +47,4 @@ path = "src/day10.rs"
 
 [dependencies]
 thiserror = "1.0.30"
+adventofcode-tooling = { path = "../adventofcode-tooling/"}

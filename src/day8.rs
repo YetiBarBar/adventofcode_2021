@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use adventofcode_2021::utils::read_lines;
+use adventofcode_tooling::{read_lines, AocError};
 
 #[must_use]
 pub fn part_1(values: &[String]) -> usize {
@@ -127,7 +127,7 @@ pub fn process(values: &[isize], distance: impl Fn(isize, isize) -> isize) -> Op
 /// # Errors
 ///
 /// May fail if input data cannot be read
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), AocError> {
     // Read file to a single string
     let now = std::time::Instant::now();
     let input_data: Vec<_> = read_lines("day_2021_8.data")?.map(Result::unwrap).collect();

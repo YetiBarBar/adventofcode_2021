@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use adventofcode_2021::utils::read_lines;
+use adventofcode_tooling::{read_lines, AocError};
 
 #[derive(Debug, Default)]
 struct BitCounter {
@@ -41,7 +41,7 @@ impl BitCounter {
 /// # Errors
 ///
 /// can't produce error
-pub fn part_1<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Error>> {
+pub fn part_1<T: AsRef<str>>(data: &[T]) -> Result<isize, AocError> {
     let str_len = data[1].as_ref().len();
     let mut initial_vec = Vec::new();
     for _ in 0..str_len {
@@ -113,7 +113,7 @@ fn partitioner(data: &[String], idx: usize, value: char) -> Vec<String> {
 /// # Errors
 ///
 /// can't produce error
-pub fn part_2<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Error>> {
+pub fn part_2<T: AsRef<str>>(data: &[T]) -> Result<isize, AocError> {
     let str_len = data[1].as_ref().len();
     let mut initial_vec = Vec::new();
     for _ in 0..str_len {
@@ -162,12 +162,13 @@ fn bit_str_to_isize(input: &[String]) -> isize {
 /// # Errors
 ///
 /// May fail if input data cannot be read
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
     let values: Vec<_> = read_lines("day_2021_3.data")?.map(Result::unwrap).collect();
 
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));
+
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())

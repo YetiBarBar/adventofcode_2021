@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::Debug, str::FromStr};
 
-use adventofcode_2021::{utils::read_lines_to_vec_t_, AocError};
+use adventofcode_tooling::{read_lines_to_vec_t, AocError};
 
 #[derive(Debug, PartialEq)]
 pub struct Point {
@@ -177,7 +177,7 @@ pub fn process(
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
-    let values: Vec<Segment> = read_lines_to_vec_t_("day_2021_5.data");
+    let values: Vec<Segment> = read_lines_to_vec_t("day_2021_5.data");
 
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));

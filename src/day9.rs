@@ -1,6 +1,7 @@
 use std::time::Instant;
 
-use adventofcode_2021::{utils::read_lines, Matrix2D};
+use adventofcode_2021::Matrix2D;
+use adventofcode_tooling::{read_lines, AocError};
 
 #[must_use]
 pub fn part_1(values: &Matrix2D<usize>) -> usize {
@@ -61,7 +62,7 @@ pub fn dfs_point(values: &mut Matrix2D<usize>, x: usize, y: usize) -> usize {
 /// # Errors
 ///
 /// May fail if input data cannot be read
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), AocError> {
     let now = Instant::now();
     let input_data: Vec<String> = read_lines("day_2021_9.data")?.map(Result::unwrap).collect();
 

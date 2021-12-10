@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use adventofcode_2021::{utils::read_lines, AocError};
+use adventofcode_tooling::{read_lines, AocError};
 
 #[must_use]
 pub fn part_1(values: &[String]) -> usize {

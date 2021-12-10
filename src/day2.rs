@@ -1,8 +1,5 @@
-use adventofcode_2021::{
-    submarine::{Command, Direction},
-    utils::read_lines,
-    AocError,
-};
+use adventofcode_2021::submarine::{Command, Direction};
+use adventofcode_tooling::{read_lines, AocError};
 
 /// Process data for a given step
 ///

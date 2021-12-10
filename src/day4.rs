@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
-use adventofcode_2021::{AocError, Matrix2D};
+use adventofcode_2021::Matrix2D;
+use adventofcode_tooling::AocError;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Mark {

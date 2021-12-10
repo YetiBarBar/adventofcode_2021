@@ -1,3 +1,5 @@
+use adventofcode_tooling::{read_single_string_to_t_vec, AocError};
+
 #[must_use]
 pub fn part_1(values: &[isize]) -> Option<isize> {
     process(values, |v1, v2| (v1 - v2).abs())
@@ -21,12 +23,11 @@ pub fn process(values: &[isize], distance: impl Fn(isize, isize) -> isize) -> Op
 /// # Errors
 ///
 /// May fail if input data cannot be read
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
 
     // Read file to a single string
-    let values: Vec<isize> =
-        adventofcode_2021::utils::read_single_string_to_t_vec("day_2021_7.data", ',');
+    let values: Vec<isize> = read_single_string_to_t_vec("day_2021_7.data", ',');
 
     println!("Part 1: {:?}", part_1(&values));
     println!("Part 2: {:?}", part_2(&values));

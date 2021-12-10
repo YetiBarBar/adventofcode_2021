@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use adventofcode_2021::utils::read_single_string_to_t_vec;
+use adventofcode_tooling::{read_single_string_to_t_vec, AocError};
 
 pub trait LanternfishGroup {
     fn populate(&mut self, values: &[usize]);
@@ -43,7 +43,7 @@ pub fn process(values: &[usize], turns: usize) -> u128 {
 /// # Errors
 ///
 /// May fail if input data cannot be read
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
 
     let values = read_single_string_to_t_vec("day_2021_6.data", ',');
