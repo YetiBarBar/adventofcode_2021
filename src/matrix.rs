@@ -175,6 +175,15 @@ impl<T: Clone> Matrix2D<T> {
     }
 
     #[must_use]
+    pub fn neighbour_left_up_coord(&self, x: usize, y: usize) -> Option<(usize, usize)> {
+        if x == 0 || x.ge(&self.width) || y.ge(&self.height) || y == 0 {
+            None
+        } else {
+            Some((x - 1, y - 1))
+        }
+    }
+
+    #[must_use]
     pub fn neighbour_down_right(&self, x: usize, y: usize) -> Option<T> {
         if x.ge(&(self.width - 1)) || y.ge(&(self.height - 1)) {
             None
@@ -195,6 +204,102 @@ impl<T: Clone> Matrix2D<T> {
     #[must_use]
     pub fn get_x_y(&self, x: usize, y: usize) -> T {
         self.values[x + y * self.width].clone()
+    }
+
+    #[must_use]
+    pub fn get_neighbours_coord(&self, x: usize, y: usize, diags: bool) -> Vec<(usize, usize)> {
+        let height = self.height;
+        let width = self.width;
+        let neighbours = if x != 0 && x < width - 1 {
+            // y is not up, not down:
+            if y != 0 && y < height - 1 {
+                if diags {
+                    vec![
+                        (x - 1, y - 1),
+                        (x, y - 1),
+                        (x + 1, y - 1),
+                        (x - 1, y),
+                        (x + 1, y),
+                        (x - 1, y + 1),
+                        (x, y + 1),
+                        (x + 1, y + 1),
+                    ]
+                } else {
+                    vec![(x, y - 1), (x - 1, y), (x + 1, y), (x, y + 1)]
+                }
+            } else if y == 0 {
+                vec![
+                    (x - 1, y),
+                    (x + 1, y),
+                    (x - 1, y + 1),
+                    (x, y + 1),
+                    (x + 1, y + 1),
+                ]
+            } else {
+                if diags {
+                    vec![
+                        (x - 1, y - 1),
+                        (x, y - 1),
+                        (x + 1, y - 1),
+                        (x - 1, y),
+                        (x + 1, y),
+                    ]
+                } else {
+                    vec![(x, y - 1), (x - 1, y), (x + 1, y)]
+                }
+            }
+        } else if x == 0 {
+            if y != 0 && y < height - 1 {
+                if diags {
+                    vec![
+                        (x, y - 1),
+                        (x + 1, y - 1),
+                        (x + 1, y),
+                        (x, y + 1),
+                        (x + 1, y + 1),
+                    ]
+                } else {
+                    vec![(x, y - 1), (x + 1, y), (x, y + 1)]
+                }
+            } else if y == 0 {
+                if diags {
+                    vec![(x + 1, y), (x, y + 1), (x + 1, y + 1)]
+                } else {
+                    vec![(x + 1, y), (x, y + 1)]
+                }
+            } else {
+                if diags {
+                    vec![(x, y - 1), (x + 1, y - 1), (x + 1, y)]
+                } else {
+                    vec![(x, y - 1), (x + 1, y)]
+                }
+            }
+        } else if y != 0 && y < height - 1 {
+            if diags {
+                vec![
+                    (x - 1, y - 1),
+                    (x, y - 1),
+                    (x - 1, y),
+                    (x - 1, y + 1),
+                    (x, y + 1),
+                ]
+            } else {
+                vec![(x, y - 1), (x - 1, y), (x, y + 1)]
+            }
+        } else if y == 0 {
+            if diags {
+                vec![(x - 1, y), (x - 1, y + 1), (x, y + 1)]
+            } else {
+                vec![(x - 1, y), (x, y + 1)]
+            }
+        } else {
+            if diags {
+                vec![(x - 1, y - 1), (x, y - 1), (x - 1, y)]
+            } else {
+                vec![(x, y - 1), (x - 1, y)]
+            }
+        };
+        neighbours
     }
 }
 

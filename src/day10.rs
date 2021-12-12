@@ -66,6 +66,7 @@ pub enum ExpressionStatus {
     Corrupted(char),
 }
 
+#[must_use]
 pub fn process(expr: &str) -> ExpressionStatus {
     let mut stack = Vec::<char>::new();
 
