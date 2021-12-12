@@ -208,98 +208,30 @@ impl<T: Clone> Matrix2D<T> {
 
     #[must_use]
     pub fn get_neighbours_coord(&self, x: usize, y: usize, diags: bool) -> Vec<(usize, usize)> {
-        let height = self.height;
-        let width = self.width;
-        let neighbours = if x != 0 && x < width - 1 {
-            // y is not up, not down:
-            if y != 0 && y < height - 1 {
-                if diags {
-                    vec![
-                        (x - 1, y - 1),
-                        (x, y - 1),
-                        (x + 1, y - 1),
-                        (x - 1, y),
-                        (x + 1, y),
-                        (x - 1, y + 1),
-                        (x, y + 1),
-                        (x + 1, y + 1),
-                    ]
-                } else {
-                    vec![(x, y - 1), (x - 1, y), (x + 1, y), (x, y + 1)]
-                }
-            } else if y == 0 {
-                vec![
-                    (x - 1, y),
-                    (x + 1, y),
-                    (x - 1, y + 1),
-                    (x, y + 1),
-                    (x + 1, y + 1),
-                ]
-            } else {
-                if diags {
-                    vec![
-                        (x - 1, y - 1),
-                        (x, y - 1),
-                        (x + 1, y - 1),
-                        (x - 1, y),
-                        (x + 1, y),
-                    ]
-                } else {
-                    vec![(x, y - 1), (x - 1, y), (x + 1, y)]
-                }
-            }
-        } else if x == 0 {
-            if y != 0 && y < height - 1 {
-                if diags {
-                    vec![
-                        (x, y - 1),
-                        (x + 1, y - 1),
-                        (x + 1, y),
-                        (x, y + 1),
-                        (x + 1, y + 1),
-                    ]
-                } else {
-                    vec![(x, y - 1), (x + 1, y), (x, y + 1)]
-                }
-            } else if y == 0 {
-                if diags {
-                    vec![(x + 1, y), (x, y + 1), (x + 1, y + 1)]
-                } else {
-                    vec![(x + 1, y), (x, y + 1)]
-                }
-            } else {
-                if diags {
-                    vec![(x, y - 1), (x + 1, y - 1), (x + 1, y)]
-                } else {
-                    vec![(x, y - 1), (x + 1, y)]
-                }
-            }
-        } else if y != 0 && y < height - 1 {
+        let deltas = {
+            let mut deltas = vec![(-1, 0), (0, -1), (0, 1), (1, 0)];
             if diags {
-                vec![
-                    (x - 1, y - 1),
-                    (x, y - 1),
-                    (x - 1, y),
-                    (x - 1, y + 1),
-                    (x, y + 1),
-                ]
-            } else {
-                vec![(x, y - 1), (x - 1, y), (x, y + 1)]
-            }
-        } else if y == 0 {
-            if diags {
-                vec![(x - 1, y), (x - 1, y + 1), (x, y + 1)]
-            } else {
-                vec![(x - 1, y), (x, y + 1)]
-            }
-        } else {
-            if diags {
-                vec![(x - 1, y - 1), (x, y - 1), (x - 1, y)]
-            } else {
-                vec![(x, y - 1), (x - 1, y)]
-            }
+                deltas.extend(vec![(-1, -1), (-1, 1), (1, -1), (1, 1)]);
+            };
+            deltas
         };
-        neighbours
+        
+        deltas
+            .iter()
+            .filter_map(|&(delta_x, delta_y)| {
+                let x_new: isize = x as isize + delta_x;
+                let y_new: isize = y as isize + delta_y;
+                if x_new.ge(&0)
+                    && x_new.lt(&(self.width as isize))
+                    && y_new.ge(&0)
+                    && y_new.lt(&(self.height as isize))
+                {
+                    Some((x_new as usize, y_new as usize))
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }
 

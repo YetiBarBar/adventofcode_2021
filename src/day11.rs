@@ -63,8 +63,7 @@ pub fn turn(matrix: &mut Matrix2D<u8>) -> usize {
             }
         }
     }
-
-    matrix.values.iter().filter(|&&v| v == 0).count()
+    bytecount::count(&matrix.values, 0)
 }
 
 /// Process solutions for day 1
