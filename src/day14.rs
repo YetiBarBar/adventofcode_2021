@@ -1,12 +1,13 @@
-use std::{collections::HashMap, fmt::format, io::BufRead, iter::empty, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf};
 
-use adventofcode_tooling::{read_lines_to_vec_t, AocError};
+use adventofcode_tooling::AocError;
 
-/// Process data for a given step
+#[must_use]
+/// Process this day puzzle
 ///
-/// # Errors
+/// # Panics
 ///
-/// can't produce error
+/// Panic if data does not provide a message
 pub fn process(data: &str, steps: usize) -> usize {
     let (message, hmap) = parse_input(data);
     let first = *message.first().unwrap();
@@ -30,20 +31,18 @@ pub fn process(data: &str, steps: usize) -> usize {
     max - min
 }
 
+#[must_use]
 pub fn part_1(data: &str) -> usize {
     process(data, 10)
 }
 
-/// Process data for a given step
-///
-/// # Errors
-///
-/// can't produce error
+#[must_use]
 pub fn part_2(data: &str) -> usize {
     process(data, 40)
 }
 
-pub fn parse_input<T: AsRef<str>>(input: T) -> (Vec<char>, HashMap<String, Vec<String>>) {
+#[must_use]
+fn parse_input<T: AsRef<str>>(input: T) -> (Vec<char>, HashMap<String, Vec<String>>) {
     let splits = input.as_ref().split("\n\n").collect::<Vec<_>>();
     let base = splits[0].trim().chars().collect::<Vec<_>>();
 
@@ -63,28 +62,29 @@ pub fn parse_input<T: AsRef<str>>(input: T) -> (Vec<char>, HashMap<String, Vec<S
     (base, values)
 }
 
-pub fn grow(
+#[must_use]
+fn grow(
     input: &HashMap<String, usize>,
     hmap: &HashMap<String, Vec<String>>,
 ) -> HashMap<String, usize> {
     let mut res = HashMap::new();
     for (token, val) in input.iter() {
-        let empty = vec![];
-        let v = hmap.get(token).unwrap_or(&empty).to_owned();
-
-        for item in v {
-            res.entry(item)
-                .and_modify(|e| {
-                    *e += val;
-                })
-                .or_insert(*val);
+        if let Some(v) = hmap.get(token) {
+            for item in v {
+                res.entry(item)
+                    .and_modify(|e| {
+                        *e += val;
+                    })
+                    .or_insert(*val);
+            }
         }
     }
 
-    res.into_iter().map(|(s, v)| (s, v)).collect()
+    res.into_iter().map(|(s, v)| (s.to_string(), v)).collect()
 }
 
-pub fn min_max(input: &HashMap<String, usize>, first: char, last: char) -> (usize, usize) {
+#[must_use]
+fn min_max(input: &HashMap<String, usize>, first: char, last: char) -> (usize, usize) {
     let mut folded = HashMap::new();
 
     for ch in input {

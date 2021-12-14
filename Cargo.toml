@@ -61,6 +61,7 @@ path = "src/day13.rs"
 name = "day14"
 path = "src/day14.rs"
 
+
 [dependencies]
 thiserror = "1.0.30"
 bytecount = "0.6.2"

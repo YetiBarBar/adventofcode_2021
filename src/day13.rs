@@ -81,19 +81,20 @@ pub fn fold_matrix(
 
     let mut values = vec![];
     for line in 0..coord {
-        let row_up = rows.get(line).unwrap();
-        let row_down = rows.get(2 * coord - line);
+        if let Some(row_up) = rows.get(line) {
+            let row_down = rows.get(2 * coord - line);
 
-        if let Some(row_down) = row_down {
-            values.extend(row_up.iter().zip(row_down.iter()).map(|(&a, &b)| {
-                if a == CaseStatus::Full || b == CaseStatus::Full {
-                    CaseStatus::Full
-                } else {
-                    CaseStatus::Empty
-                }
-            }));
-        } else {
-            values.extend(row_up);
+            if let Some(row_down) = row_down {
+                values.extend(row_up.iter().zip(row_down.iter()).map(|(&a, &b)| {
+                    if a == CaseStatus::Full || b == CaseStatus::Full {
+                        CaseStatus::Full
+                    } else {
+                        CaseStatus::Empty
+                    }
+                }));
+            } else {
+                values.extend(row_up);
+            }
         }
     }
 
@@ -109,6 +110,11 @@ pub fn fold_matrix(
     }
 }
 
+/// Produce this day matrix
+///
+/// # Errors
+///
+/// Produces errors when something bad happens in parsing.
 pub fn to_matrix(points: &[Point]) -> Result<Matrix2D<CaseStatus>, AocError> {
     let max_x = points
         .iter()
@@ -170,7 +176,7 @@ pub fn is_small_cave(cave: &str) -> bool {
 pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
     // Read file to a single string
-    let mut filepath: PathBuf = std::env::current_dir().unwrap();
+    let mut filepath: PathBuf = std::env::current_dir()?;
     filepath.push("data");
     filepath.push("day_2021_13.data");
     let input_data = read_to_string(filepath)?

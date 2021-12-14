@@ -207,6 +207,11 @@ impl<T: Clone> Matrix2D<T> {
     }
 
     #[must_use]
+    /// Compute neighboorhood coord
+    ///
+    /// # Panics
+    ///
+    /// If something bad happens in conversions.
     pub fn get_neighbours_coord(&self, x: usize, y: usize, diags: bool) -> Vec<(usize, usize)> {
         let deltas = {
             let mut deltas = vec![(-1, 0), (0, -1), (0, 1), (1, 0)];
@@ -219,14 +224,17 @@ impl<T: Clone> Matrix2D<T> {
         deltas
             .iter()
             .filter_map(|&(delta_x, delta_y)| {
-                let x_new: isize = x as isize + delta_x;
-                let y_new: isize = y as isize + delta_y;
+                let x_new: isize = isize::try_from(x).unwrap() + delta_x;
+                let y_new: isize = isize::try_from(y).unwrap() + delta_y;
                 if x_new.ge(&0)
-                    && x_new.lt(&(self.width as isize))
+                    && x_new.lt(&(isize::try_from(self.width).unwrap()))
                     && y_new.ge(&0)
-                    && y_new.lt(&(self.height as isize))
+                    && y_new.lt(&(isize::try_from(self.height)).unwrap())
                 {
-                    Some((x_new as usize, y_new as usize))
+                    Some((
+                        usize::try_from(x_new).unwrap(),
+                        usize::try_from(y_new).unwrap(),
+                    ))
                 } else {
                     None
                 }

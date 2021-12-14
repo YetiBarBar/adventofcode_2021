@@ -70,22 +70,19 @@ fn recursive_traversal_complex(
                 }
             }
 
-            match twice_visited {
-                Some(val) => {
-                    res += recursive_traversal(data, connected_cave, visited_small_caves);
-                    if val == connected_cave {
-                        *twice_visited = None;
-                    }
+            if let Some(val) = twice_visited {
+                res += recursive_traversal(data, connected_cave, visited_small_caves);
+                if val == connected_cave {
+                    *twice_visited = None;
                 }
-                _ => {
-                    res += recursive_traversal_complex(
-                        data,
-                        connected_cave,
-                        visited_small_caves,
-                        twice_visited,
-                    );
-                    visited_small_caves.remove(connected_cave);
-                }
+            } else {
+                res += recursive_traversal_complex(
+                    data,
+                    connected_cave,
+                    visited_small_caves,
+                    twice_visited,
+                );
+                visited_small_caves.remove(connected_cave);
             }
         }
     }
