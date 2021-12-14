@@ -28,41 +28,39 @@ impl Polymere {
 
     #[must_use]
     fn min_max(&self, first: char, last: char) -> (usize, usize) {
-        let mut folded = HashMap::new();
+        let folded: HashMap<_, _> = self
+            .0
+            .iter()
+            .flat_map(|(s, count)| s.chars().map(move |ch| (ch, count)))
+            .fold(
+                [(first, 1_usize), (last, 1)]
+                    .into_iter()
+                    .collect::<HashMap<char, usize>>(),
+                |mut acc, (ch, count)| {
+                    *acc.entry(ch).or_default() += count;
+                    acc
+                },
+            );
 
-        for ch in &self.0 {
-            for c in ch.0.chars() {
-                folded
-                    .entry(c)
-                    .and_modify(|val| {
-                        *val += *ch.1;
-                    })
-                    .or_insert(*ch.1);
-            }
-        }
-        *folded.entry(first).or_insert(0) += 1;
-        *folded.entry(last).or_insert(0) += 1;
-        let res: (Option<&usize>, Option<&usize>) =
-            folded.iter().fold((None, None), |mut acc, (_, value)| {
-                let (cur_min, cur_max) = (acc.0, acc.1);
-                if cur_min.is_none() {
-                    acc.0 = Some(value);
-                } else if let Some(cur_min) = cur_min {
-                    if value.lt(cur_min) {
-                        acc.0 = Some(value);
-                    }
-                }
-                if cur_max.is_none() {
-                    acc.1 = Some(value);
-                } else if let Some(cur_max) = cur_max {
-                    if value.gt(cur_max) {
-                        acc.1 = Some(value);
-                    }
-                }
-                acc
-            });
+        // Every char is counted twice!
+        let folded: HashMap<char, usize> = folded.iter().map(|(&u, &v)| (u, v / 2)).collect();
 
-        (*res.0.unwrap_or(&0) / 2, *res.1.unwrap_or(&0) / 2)
+        let (min, max) = folded.iter().fold(
+            (usize::MAX, usize::MIN),
+            |(mut min, mut max), (_, &value)| {
+                if value.lt(&min) {
+                    min = value;
+                }
+
+                if value.gt(&max) {
+                    max = value;
+                }
+
+                (min, max)
+            },
+        );
+
+        (min, max)
     }
 }
 
