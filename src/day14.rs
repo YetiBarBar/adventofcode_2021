@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::format, io::BufRead, path::PathBuf};
+use std::{collections::HashMap, fmt::format, io::BufRead, iter::empty, path::PathBuf};
 
 use adventofcode_tooling::{read_lines_to_vec_t, AocError};
 
@@ -7,12 +7,31 @@ use adventofcode_tooling::{read_lines_to_vec_t, AocError};
 /// # Errors
 ///
 /// can't produce error
-pub fn part_1(data: &str) -> usize {
+pub fn process(data: &str, steps: usize) -> usize {
     let (message, hmap) = parse_input(data);
-    let tenth = (1..=10).fold(message, |acc, _| grow(&acc, &hmap));
+    let first = *message.first().unwrap();
+    let last = *message.last().unwrap();
+    let message = message.windows(2).fold(HashMap::new(), |mut acc, windows| {
+        let ent = format!("{}{}", windows[0], windows[1]);
+        acc.entry(ent)
+            .and_modify(|e| {
+                *e += 1;
+            })
+            .or_insert(1_usize);
+        acc
+    });
 
-    let min_max = min_max(&tenth);
-    min_max.1 - min_max.0
+    let (min, max) = min_max(
+        &(1..=steps).fold(message, |acc, _| grow(&acc, &hmap)),
+        first,
+        last,
+    );
+
+    max - min
+}
+
+pub fn part_1(data: &str) -> usize {
+    process(data, 10)
 }
 
 /// Process data for a given step
@@ -21,75 +40,86 @@ pub fn part_1(data: &str) -> usize {
 ///
 /// can't produce error
 pub fn part_2(data: &str) -> usize {
-    let (message, hmap) = parse_input(data);
-
-    let tenth = (1..=40).fold(message, |acc, idx| {
-        println!("{}", idx);
-        grow(&acc, &hmap)
-    });
-    // tenth.len()
-    let min_max = min_max(&tenth);
-    min_max.1 - min_max.0
+    process(data, 40)
 }
 
-pub fn parse_input<T: AsRef<str>>(input: T) -> (Vec<char>, HashMap<String, char>) {
+pub fn parse_input<T: AsRef<str>>(input: T) -> (Vec<char>, HashMap<String, Vec<String>>) {
     let splits = input.as_ref().split("\n\n").collect::<Vec<_>>();
     let base = splits[0].trim().chars().collect::<Vec<_>>();
 
-    let values: HashMap<String, char> = splits[1]
+    let values = splits[1]
         .lines()
         .map(|s| (s[0..2].to_string(), s.chars().nth(6).unwrap()))
-        .collect();
+        .map(|(tok, ch)| {
+            (tok.to_string(), {
+                let tok = tok.chars().collect::<Vec<_>>();
+                [tok[0], ch, tok[1]]
+                    .windows(2)
+                    .map(|t| t.iter().collect::<String>())
+                    .collect()
+            })
+        })
+        .collect::<HashMap<String, Vec<String>>>();
     (base, values)
 }
 
-pub fn grow(input: &[char], hmap: &HashMap<String, char>) -> Vec<char> {
-    let mut res = input.windows(2).fold(Vec::new(), |mut acc, ch| {
-        let item = format!("{}{}", ch[0], ch[1]);
-        acc.push(ch[0]);
-        if let Some(token) = hmap.get(&item) {
-            acc.push(*token);
-        }
-        acc
-    });
-    res.push(*input.last().unwrap());
-    res
-}
+pub fn grow(
+    input: &HashMap<String, usize>,
+    hmap: &HashMap<String, Vec<String>>,
+) -> HashMap<String, usize> {
+    let mut res = HashMap::new();
+    for (token, val) in input.iter() {
+        let empty = vec![];
+        let v = hmap.get(token).unwrap_or(&empty).to_owned();
 
-pub fn min_max(input: &[char]) -> (usize, usize) {
-    let mut folded = HashMap::new();
-    for ch in input {
-        folded
-            .entry(ch)
-            .and_modify(|val| {
-                *val += 1;
-            })
-            .or_insert(1_usize);
+        for item in v {
+            res.entry(item)
+                .and_modify(|e| {
+                    *e += val;
+                })
+                .or_insert(*val);
+        }
     }
 
-    let folded = folded.iter().fold((None, None), |mut acc, (_, value)| {
-        let (cur_min, cur_max) = (acc.0, acc.1);
-        if cur_min.is_none() {
-            acc.0 = Some(value);
-        } else {
-            if let Some(cur_min) = cur_min {
+    res.into_iter().map(|(s, v)| (s, v)).collect()
+}
+
+pub fn min_max(input: &HashMap<String, usize>, first: char, last: char) -> (usize, usize) {
+    let mut folded = HashMap::new();
+
+    for ch in input {
+        for c in ch.0.chars() {
+            folded
+                .entry(c)
+                .and_modify(|val| {
+                    *val += ch.1;
+                })
+                .or_insert(*ch.1);
+        }
+    }
+    *folded.entry(first).or_insert(0) += 1;
+    *folded.entry(last).or_insert(0) += 1;
+    let res: (Option<&usize>, Option<&usize>) =
+        folded.iter().fold((None, None), |mut acc, (_, value)| {
+            let (cur_min, cur_max) = (acc.0, acc.1);
+            if cur_min.is_none() {
+                acc.0 = Some(value);
+            } else if let Some(cur_min) = cur_min {
                 if value.lt(cur_min) {
                     acc.0 = Some(value);
                 }
             }
-        }
-        if cur_max.is_none() {
-            acc.1 = Some(value);
-        } else {
-            if let Some(cur_max) = cur_max {
+            if cur_max.is_none() {
+                acc.1 = Some(value);
+            } else if let Some(cur_max) = cur_max {
                 if value.gt(cur_max) {
                     acc.1 = Some(value);
                 }
             }
-        }
-        acc
-    });
-    (folded.0.unwrap().clone(), folded.1.unwrap().clone())
+            acc
+        });
+
+    (*res.0.unwrap_or(&0) / 2, *res.1.unwrap_or(&0) / 2)
 }
 
 /// Process solutions for day 1
@@ -109,9 +139,7 @@ pub fn main() -> Result<(), AocError> {
 
     println!("{}", part_1(&input_data));
     println!("{}", part_2(&input_data));
-    /* let values = read_lines_to_vec_t("day_2021_1.data");
-    println!("Part 1: {:?}", part_1(&values)); */
-    //println!("Part 2: {:?}", part_2(&values));
+
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())
@@ -142,18 +170,6 @@ BC -> B
 CC -> N
 CN -> C"#;
 
-        let (message, hmap) = parse_input(&data);
-        let v1 = grow(&message, &hmap);
-        let v2 = grow(&v1, &hmap);
-        let v3 = grow(&v2, &hmap);
-        let v4 = grow(&v3, &hmap);
-        assert_eq!(v1.iter().collect::<String>(), "NCNBCHB");
-        assert_eq!(v2.iter().collect::<String>(), "NBCCNBBBCBHCB");
-        assert_eq!(v3.iter().collect::<String>(), "NBBBCNCCNBBNBNBBCHBHHBCHB");
-        assert_eq!(
-            v4.iter().collect::<String>(),
-            "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB"
-        );
         assert_eq!(part_1(&data), 1588);
     }
 }
