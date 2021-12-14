@@ -2,6 +2,70 @@ use std::{collections::HashMap, path::PathBuf};
 
 use adventofcode_tooling::AocError;
 
+struct Polymere(HashMap<String, usize>);
+
+type PolymereRules = HashMap<String, [String; 2]>;
+
+impl Polymere {
+    #[must_use]
+    fn new() -> Self {
+        Self(HashMap::new())
+    }
+
+    #[must_use]
+    fn grow(&self, hmap: &PolymereRules) -> Polymere {
+        let mut res = HashMap::new();
+        for (token, val) in &self.0 {
+            if let Some(v) = hmap.get(token) {
+                for item in v {
+                    *res.entry(item).or_default() += *val;
+                }
+            }
+        }
+
+        Polymere(res.into_iter().map(|(s, v)| (s.to_string(), v)).collect())
+    }
+
+    #[must_use]
+    fn min_max(&self, first: char, last: char) -> (usize, usize) {
+        let mut folded = HashMap::new();
+
+        for ch in &self.0 {
+            for c in ch.0.chars() {
+                folded
+                    .entry(c)
+                    .and_modify(|val| {
+                        *val += *ch.1;
+                    })
+                    .or_insert(*ch.1);
+            }
+        }
+        *folded.entry(first).or_insert(0) += 1;
+        *folded.entry(last).or_insert(0) += 1;
+        let res: (Option<&usize>, Option<&usize>) =
+            folded.iter().fold((None, None), |mut acc, (_, value)| {
+                let (cur_min, cur_max) = (acc.0, acc.1);
+                if cur_min.is_none() {
+                    acc.0 = Some(value);
+                } else if let Some(cur_min) = cur_min {
+                    if value.lt(cur_min) {
+                        acc.0 = Some(value);
+                    }
+                }
+                if cur_max.is_none() {
+                    acc.1 = Some(value);
+                } else if let Some(cur_max) = cur_max {
+                    if value.gt(cur_max) {
+                        acc.1 = Some(value);
+                    }
+                }
+                acc
+            });
+
+        (*res.0.unwrap_or(&0) / 2, *res.1.unwrap_or(&0) / 2)
+    }
+}
+
 #[must_use]
 /// Process this day puzzle
 ///
@@ -12,21 +76,17 @@ pub fn process(data: &str, steps: usize) -> usize {
     let (message, hmap) = parse_input(data);
     let first = *message.first().unwrap();
     let last = *message.last().unwrap();
-    let message = message.windows(2).fold(HashMap::new(), |mut acc, windows| {
-        let ent = format!("{}{}", windows[0], windows[1]);
-        acc.entry(ent)
-            .and_modify(|e| {
-                *e += 1;
-            })
-            .or_insert(1_usize);
-        acc
-    });
+    let message = message
+        .windows(2)
+        .fold(Polymere::new(), |mut acc, windows| {
+            let ent = format!("{}{}", windows[0], windows[1]);
+            *acc.0.entry(ent).or_default() += 1_usize;
+            acc
+        });
 
-    let (min, max) = min_max(
-        &(1..=steps).fold(message, |acc, _| grow(&acc, &hmap)),
-        first,
-        last,
-    );
+    let (min, max) = (1..=steps)
+        .fold(message, |acc, _| acc.grow(&hmap))
+        .min_max(first, last);
 
     max - min
 }
@@ -42,84 +102,25 @@ pub fn part_2(data: &str) -> usize {
 }
 
 #[must_use]
-fn parse_input<T: AsRef<str>>(input: T) -> (Vec<char>, HashMap<String, Vec<String>>) {
+fn parse_input<T: AsRef<str>>(input: T) -> (Vec<char>, PolymereRules) {
     let splits = input.as_ref().split("\n\n").collect::<Vec<_>>();
     let base = splits[0].trim().chars().collect::<Vec<_>>();
 
-    let values = splits[1]
+    let values: PolymereRules = splits[1]
         .lines()
         .map(|s| (s[0..2].to_string(), s.chars().nth(6).unwrap()))
         .map(|(tok, ch)| {
             (tok.to_string(), {
-                let tok = tok.chars().collect::<Vec<_>>();
-                [tok[0], ch, tok[1]]
-                    .windows(2)
-                    .map(|t| t.iter().collect::<String>())
-                    .collect()
+                let mut tok_iter = tok.chars();
+                let tok = (
+                    tok_iter.next().unwrap_or_default(),
+                    tok_iter.next().unwrap_or_default(),
+                );
+                [format!("{}{}", tok.0, ch), format!("{}{}", ch, tok.1)]
             })
         })
-        .collect::<HashMap<String, Vec<String>>>();
+        .collect::<PolymereRules>();
     (base, values)
-}
-
-#[must_use]
-fn grow(
-    input: &HashMap<String, usize>,
-    hmap: &HashMap<String, Vec<String>>,
-) -> HashMap<String, usize> {
-    let mut res = HashMap::new();
-    for (token, val) in input.iter() {
-        if let Some(v) = hmap.get(token) {
-            for item in v {
-                res.entry(item)
-                    .and_modify(|e| {
-                        *e += val;
-                    })
-                    .or_insert(*val);
-            }
-        }
-    }
-
-    res.into_iter().map(|(s, v)| (s.to_string(), v)).collect()
-}
-
-#[must_use]
-fn min_max(input: &HashMap<String, usize>, first: char, last: char) -> (usize, usize) {
-    let mut folded = HashMap::new();
-
-    for ch in input {
-        for c in ch.0.chars() {
-            folded
-                .entry(c)
-                .and_modify(|val| {
-                    *val += ch.1;
-                })
-                .or_insert(*ch.1);
-        }
-    }
-    *folded.entry(first).or_insert(0) += 1;
-    *folded.entry(last).or_insert(0) += 1;
-    let res: (Option<&usize>, Option<&usize>) =
-        folded.iter().fold((None, None), |mut acc, (_, value)| {
-            let (cur_min, cur_max) = (acc.0, acc.1);
-            if cur_min.is_none() {
-                acc.0 = Some(value);
-            } else if let Some(cur_min) = cur_min {
-                if value.lt(cur_min) {
-                    acc.0 = Some(value);
-                }
-            }
-            if cur_max.is_none() {
-                acc.1 = Some(value);
-            } else if let Some(cur_max) = cur_max {
-                if value.gt(cur_max) {
-                    acc.1 = Some(value);
-                }
-            }
-            acc
-        });
-
-    (*res.0.unwrap_or(&0) / 2, *res.1.unwrap_or(&0) / 2)
 }
 
 /// Process solutions for day 1
