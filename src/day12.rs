@@ -70,20 +70,22 @@ fn recursive_traversal_complex(
                 }
             }
 
-            if twice_visited.is_some() {
-                res += recursive_traversal(data, connected_cave, visited_small_caves);
-            } else {
-                res += recursive_traversal_complex(
-                    data,
-                    connected_cave,
-                    visited_small_caves,
-                    twice_visited,
-                );
-            }
-            if *twice_visited == Some(connected_cave.to_string()) {
-                *twice_visited = None;
-            } else {
-                visited_small_caves.remove(connected_cave);
+            match twice_visited {
+                Some(val) => {
+                    res += recursive_traversal(data, connected_cave, visited_small_caves);
+                    if val == connected_cave {
+                        *twice_visited = None;
+                    }
+                }
+                _ => {
+                    res += recursive_traversal_complex(
+                        data,
+                        connected_cave,
+                        visited_small_caves,
+                        twice_visited,
+                    );
+                    visited_small_caves.remove(connected_cave);
+                }
             }
         }
     }
@@ -120,7 +122,7 @@ fn parse_input<T: AsRef<str>>(data: T) -> HashMap<String, HashSet<String>> {
     hmap
 }
 
-/// Process solutions for day 1
+/// Process solutions for day 12
 ///
 /// # Errors
 ///

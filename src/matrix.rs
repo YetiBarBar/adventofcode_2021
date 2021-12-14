@@ -215,7 +215,7 @@ impl<T: Clone> Matrix2D<T> {
             };
             deltas
         };
-        
+
         deltas
             .iter()
             .filter_map(|&(delta_x, delta_y)| {
@@ -232,6 +232,16 @@ impl<T: Clone> Matrix2D<T> {
                 }
             })
             .collect()
+    }
+
+    #[must_use]
+    pub fn transpose(&self) -> Self {
+        let values: Vec<T> = self.cols().iter().flat_map(|v| v.iter()).cloned().collect();
+        Self {
+            width: self.height,
+            height: self.width,
+            values,
+        }
     }
 }
 
