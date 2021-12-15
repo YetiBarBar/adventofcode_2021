@@ -4,31 +4,31 @@ use std::collections::BinaryHeap;
 use adventofcode_2021::Matrix2D;
 use adventofcode_tooling::{read_lines, AocError};
 
+#[must_use]
 fn produce_big_matrix(input: &Matrix2D<usize>) -> Matrix2D<usize> {
     let rows = input.rows();
-    let r = rows
-        .iter()
-        .flat_map(|v| {
-            (0..5).flat_map(|idx| {
-                v.iter().map(move |&value| {
+
+    let values = (0..5)
+        .flat_map(|idx| {
+            rows.iter()
+                .flat_map(|v| {
+                    (0..5).flat_map(|idx| {
+                        v.iter().map(move |&value| {
+                            if (value + idx).le(&9) {
+                                value + idx
+                            } else {
+                                (value + idx) % 10 + 1
+                            }
+                        })
+                    })
+                })
+                .map(move |value| {
                     if (value + idx).le(&9) {
                         value + idx
                     } else {
                         (value + idx) % 10 + 1
                     }
                 })
-            })
-        })
-        .collect::<Vec<usize>>();
-    let values = (0..5)
-        .flat_map(|idx| {
-            r.iter().map(move |&value| {
-                if (value + idx).le(&9) {
-                    value + idx
-                } else {
-                    (value + idx) % 10 + 1
-                }
-            })
         })
         .collect::<Vec<_>>();
 
@@ -39,23 +39,6 @@ fn produce_big_matrix(input: &Matrix2D<usize>) -> Matrix2D<usize> {
     }
 }
 
-/// Process data for a given step
-///
-/// # Errors
-///
-/// step has to be greater than 1
-pub fn process(data: &[usize], step: usize) -> Result<usize, &'static str> {
-    if data.len().lt(&step) {
-        return Err("Trying to process a step larger than data");
-    }
-    match step {
-        0 => Err("Invalid step: 0"),
-        _ => Ok(data
-            .windows(step)
-            .filter(|&window| window[step - 1] > window[0])
-            .count()),
-    }
-}
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct State {
     cost: usize,
@@ -85,6 +68,7 @@ impl PartialOrd for State {
         Some(self.cmp(other))
     }
 }
+
 // Dijkstra's shortest path algorithm.
 
 // Start at `start` and use `dist` to track the current shortest distance
@@ -153,10 +137,9 @@ fn shortest_path(
 /// # Errors
 ///
 /// can't produce error
-pub fn part_1(data: &Matrix2D<usize>) -> usize {
-    //println!("{:?}", &data);
-    shortest_path(data, (0, 0), (data.width - 1, data.height - 1)).unwrap()
-    //todo!()
+#[must_use]
+pub fn part_1(data: &Matrix2D<usize>) -> Option<usize> {
+    shortest_path(data, (0, 0), (data.width - 1, data.height - 1))
 }
 
 /// Process data for a given step
@@ -164,9 +147,10 @@ pub fn part_1(data: &Matrix2D<usize>) -> usize {
 /// # Errors
 ///
 /// can't produce error
-pub fn part_2(data: &Matrix2D<usize>) -> usize {
-    let data = produce_big_matrix(&data);
-    shortest_path(&data, (0, 0), (data.width - 1, data.height - 1)).unwrap()
+#[must_use]
+pub fn part_2(data: &Matrix2D<usize>) -> Option<usize> {
+    let data = produce_big_matrix(data);
+    shortest_path(&data, (0, 0), (data.width - 1, data.height - 1))
 }
 
 /// Process solutions for day 1
@@ -229,7 +213,7 @@ mod tests {
                 .map(|c| c.to_digit(10).unwrap() as usize)
                 .collect(),
         };
-        assert_eq!(part_1(&matrix), 40);
+        assert_eq!(part_1(&matrix), Some(40));
     }
     #[test]
     fn test_day15_part2() {
@@ -258,6 +242,6 @@ mod tests {
                 .map(|c| c.to_digit(10).unwrap() as usize)
                 .collect(),
         };
-        assert_eq!(part_2(&matrix), 315);
+        assert_eq!(part_2(&matrix), Some(315));
     }
 }
