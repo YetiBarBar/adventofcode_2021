@@ -5,30 +5,21 @@ use adventofcode_2021::Matrix2D;
 use adventofcode_tooling::{read_lines, AocError};
 
 #[must_use]
-fn produce_big_matrix(input: &Matrix2D<usize>) -> Matrix2D<usize> {
+fn produce_big_matrix(
+    input: &Matrix2D<usize>,
+    times: usize,
+    compute_func: impl Fn(usize, usize) -> usize,
+) -> Matrix2D<usize> {
     let rows = input.rows();
+    let compute_func = &compute_func;
 
-    let values = (0..5)
+    let values = (0..times)
         .flat_map(|idx| {
             rows.iter()
                 .flat_map(|v| {
-                    (0..5).flat_map(|idx| {
-                        v.iter().map(move |&value| {
-                            if (value + idx).le(&9) {
-                                value + idx
-                            } else {
-                                (value + idx) % 10 + 1
-                            }
-                        })
-                    })
+                    (0..times).flat_map(|idx| v.iter().map(move |&value| compute_func(value, idx)))
                 })
-                .map(move |value| {
-                    if (value + idx).le(&9) {
-                        value + idx
-                    } else {
-                        (value + idx) % 10 + 1
-                    }
-                })
+                .map(move |value| compute_func(value, idx))
         })
         .collect::<Vec<_>>();
 
@@ -149,7 +140,13 @@ pub fn part_1(data: &Matrix2D<usize>) -> Option<usize> {
 /// can't produce error
 #[must_use]
 pub fn part_2(data: &Matrix2D<usize>) -> Option<usize> {
-    let data = produce_big_matrix(data);
+    let data = produce_big_matrix(data, 5, |value: usize, index: usize| {
+        if (value + index).le(&9) {
+            value + index
+        } else {
+            (value + index) % 10 + 1
+        }
+    });
     shortest_path(&data, (0, 0), (data.width - 1, data.height - 1))
 }
 
