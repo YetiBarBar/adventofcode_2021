@@ -14,7 +14,7 @@ impl Packet {
     fn version_sum(&self) -> usize {
         match &self.message {
             Message::Literal(_) => self.version,
-            Message::Operator(v) => self.version + v.iter().map(|p| p.version_sum()).sum::<usize>(),
+            Message::Operator(v) => self.version + v.iter().map(Packet::version_sum).sum::<usize>(),
         }
     }
 
@@ -29,12 +29,12 @@ impl Packet {
                 }
             }
             Message::Operator(v) => match &self.type_id {
-                0 => v.iter().map(|op| op.evaluate()).sum(),
-                1 => v.iter().map(|op| op.evaluate()).product(),
-                2 => v.iter().map(|op| op.evaluate()).min().unwrap(),
-                3 => v.iter().map(|op| op.evaluate()).max().unwrap(),
+                0 => v.iter().map(Packet::evaluate).sum(),
+                1 => v.iter().map(Packet::evaluate).product(),
+                2 => v.iter().map(Packet::evaluate).min().unwrap(),
+                3 => v.iter().map(Packet::evaluate).max().unwrap(),
                 5 => {
-                    let values: Vec<_> = v.iter().map(|op| op.evaluate()).collect();
+                    let values: Vec<_> = v.iter().map(Packet::evaluate).collect();
                     if values[0].gt(&values[1]) {
                         1
                     } else {
@@ -42,7 +42,7 @@ impl Packet {
                     }
                 }
                 6 => {
-                    let values: Vec<_> = v.iter().map(|op| op.evaluate()).collect();
+                    let values: Vec<_> = v.iter().map(Packet::evaluate).collect();
                     if values[0].lt(&values[1]) {
                         1
                     } else {
@@ -50,7 +50,7 @@ impl Packet {
                     }
                 }
                 7 => {
-                    let values: Vec<_> = v.iter().map(|op| op.evaluate()).collect();
+                    let values: Vec<_> = v.iter().map(Packet::evaluate).collect();
                     if values[0].eq(&values[1]) {
                         1
                     } else {
@@ -100,7 +100,7 @@ fn parse_input(data: &[usize]) -> Option<(Packet, usize)> {
             .copied()
             .collect::<Vec<usize>>();
         values.extend(
-            data[6..].chunks(5).skip(values.len() / 4).next().unwrap()[1..]
+            data[6..].chunks(5).nth(values.len() / 4).unwrap()[1..]
                 .iter()
                 .copied(),
         );
