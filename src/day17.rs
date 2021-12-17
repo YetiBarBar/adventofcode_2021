@@ -1,3 +1,5 @@
+use std::{path::PathBuf, str::FromStr};
+
 use adventofcode_tooling::AocError;
 
 #[derive(Debug)]
@@ -18,20 +20,54 @@ struct Probe {
 }
 
 impl Target {
-    fn new(xmin: isize, xmax: isize, ymin: isize, ymax: isize) -> Self {
-        Self {
-            xmin,
-            xmax,
-            ymin,
-            ymax,
-        }
-    }
     fn is_in(&self, probe: &Probe) -> bool {
         self.xmin.le(&probe.x)
             && self.xmax.ge(&probe.x)
             && self.ymax.ge(&probe.y)
             && self.ymin.le(&probe.y)
     }
+}
+
+impl FromStr for Target {
+    type Err = AocError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.len().lt(&"target area: x=".len()) {
+            return Err(AocError::ParsingError);
+        }
+        let ranges: Vec<_> = s["target area: x=".len()..]
+            .split(", y=")
+            .map(|s| s.trim().to_string())
+            .collect();
+
+        if ranges.len() != 2 {
+            return Err(AocError::ParsingError);
+        }
+
+        let x = parse_range(&ranges[0])?;
+        let y = parse_range(&ranges[1])?;
+
+        Ok(Self {
+            xmin: x.0,
+            xmax: x.1,
+            ymin: y.0,
+            ymax: y.1,
+        })
+    }
+}
+
+fn parse_range(input: &str) -> Result<(isize, isize), AocError> {
+    let parts = input.split("..").collect::<Vec<_>>();
+    if parts.len() != 2 {
+        return Err(AocError::ParsingError);
+    }
+    let min = parts[0]
+        .parse::<isize>()
+        .map_err(|_| AocError::ParsingError)?;
+    let max = parts[1]
+        .parse::<isize>()
+        .map_err(|_| AocError::ParsingError)?;
+    Ok((min, max))
 }
 
 impl Probe {
@@ -91,12 +127,12 @@ fn max_height(vx: isize, vy: isize, target: &Target) -> Option<isize> {
         max_height: 0,
     };
 
-    let mut h = 0;
+    let mut max_h;
 
     while let Some(new_probe) = probe.step(target) {
-        h = new_probe.max_height;
+        max_h = new_probe.max_height;
         if target.is_in(&new_probe) {
-            return Some(h);
+            return Some(max_h);
         }
         probe = new_probe;
     }
@@ -110,14 +146,14 @@ fn max_height(vx: isize, vy: isize, target: &Target) -> Option<isize> {
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
+    // Read file to a single string
+    let mut filepath: PathBuf = std::env::current_dir().unwrap();
+    filepath.push("data");
+    filepath.push("day_2021_17.data");
 
-    // let values = read_lines_to_vec_t("day_2021_17.data");
-    let target_test = Target {
-        xmin: 124,
-        xmax: 174,
-        ymin: -123,
-        ymax: -86,
-    };
+    let input = std::fs::read_to_string(&filepath).unwrap();
+
+    let target = Target::from_str(&input)?;
 
     let mut pos = vec![];
 
@@ -129,12 +165,12 @@ pub fn main() -> Result<(), AocError> {
     }
     let part_1 = pos
         .iter()
-        .filter_map(|(x, y)| max_height(*x, *y, &target_test))
+        .filter_map(|(x, y)| max_height(*x, *y, &target))
         .max();
 
     let part_2 = pos
         .iter()
-        .filter_map(|(x, y)| max_height(*x, *y, &target_test))
+        .filter_map(|(x, y)| max_height(*x, *y, &target))
         .count();
 
     println!("{:?}", part_1);
