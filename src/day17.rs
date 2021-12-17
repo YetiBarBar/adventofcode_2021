@@ -163,15 +163,15 @@ pub fn main() -> Result<(), AocError> {
             pos.push((x_idx, y_idx));
         }
     }
-    let part_1 = pos
-        .iter()
-        .filter_map(|(x, y)| max_height(*x, *y, &target))
-        .max();
 
-    let part_2 = pos
+    let (part_1, part_2) = pos
         .iter()
         .filter_map(|(x, y)| max_height(*x, *y, &target))
-        .count();
+        .fold((0, 0), |(mut cur_max, mut count), pos| {
+            cur_max = cur_max.max(pos);
+            count += 1_usize;
+            (cur_max, count)
+        });
 
     println!("{:?}", part_1);
     println!("{:?}", part_2);
