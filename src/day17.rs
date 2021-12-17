@@ -76,13 +76,7 @@ impl Probe {
             (self.x, self.y, self.vx, self.vy, self.max_height);
         x += vx;
         y += vy;
-        vx += if vx.eq(&0) {
-            0
-        } else if vx.gt(&0) {
-            -1
-        } else {
-            1
-        };
+        vx -= vx.signum();
         vy -= 1;
 
         if y.gt(&max_height) {
