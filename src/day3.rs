@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use adventofcode_tooling::{read_lines, AocError};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 struct BitCounter {
     zeroes: usize,
     ones: usize,
@@ -115,10 +115,6 @@ fn partitioner(data: &[String], idx: usize, value: char) -> Vec<String> {
 /// can't produce error
 pub fn part_2<T: AsRef<str>>(data: &[T]) -> Result<isize, AocError> {
     let str_len = data[1].as_ref().len();
-    let mut initial_vec = Vec::new();
-    for _ in 0..str_len {
-        initial_vec.push(BitCounter::new());
-    }
 
     let mut result_oxygen = data
         .iter()
@@ -141,20 +137,10 @@ pub fn part_2<T: AsRef<str>>(data: &[T]) -> Result<isize, AocError> {
         }
     }
 
-    let co2 = bit_str_to_isize(&result_co2);
-    let oxygen = bit_str_to_isize(&result_oxygen);
+    let co2 = isize::from_str_radix(&result_co2[0], 2).map_err(|_| AocError::ParsingError)?;
+    let oxygen = isize::from_str_radix(&result_oxygen[0], 2).map_err(|_| AocError::ParsingError)?;
 
     Ok(oxygen * co2)
-}
-
-fn bit_str_to_isize(input: &[String]) -> isize {
-    input[0].chars().fold(0, |mut acc, bit| {
-        acc <<= 1;
-        if bit == '1' {
-            acc += 1;
-        }
-        acc
-    })
 }
 
 /// Process solutions for day 3
