@@ -8,6 +8,13 @@ pub struct Point {
     y: isize,
 }
 
+impl Point {
+    #[must_use]
+    pub fn new(x: isize, y: isize) -> Self {
+        Self { x, y }
+    }
+}
+
 impl FromStr for Point {
     type Err = AocError;
 
@@ -16,7 +23,7 @@ impl FromStr for Point {
         let x = parse_part(&parts, 0)?;
         let y = parse_part(&parts, 1)?;
 
-        Ok(Point { x, y })
+        Ok(Point::new(x, y))
     }
 }
 
@@ -44,11 +51,16 @@ impl FromStr for Segment {
         let a = parse_part(&parts, 0)?;
         let b = parse_part(&parts, 1)?;
 
-        Ok(Segment { a, b })
+        Ok(Segment::new(a, b))
     }
 }
 
 impl Segment {
+    #[must_use]
+    pub fn new(a: Point, b: Point) -> Self {
+        Self { a, b }
+    }
+
     #[must_use]
     pub fn is_horizontal(&self) -> bool {
         self.a.y == self.b.y
@@ -89,7 +101,7 @@ impl Segment {
         if self.is_horizontal() {
             let min = self.a.x.min(self.b.x);
             let max = self.a.x.max(self.b.x);
-            (min..=max).map(|x| Point { x, y: self.b.y }).collect()
+            (min..=max).map(|x| Point::new(x, self.b.y)).collect()
         } else {
             vec![]
         }
@@ -101,7 +113,7 @@ impl Segment {
             let min = self.a.y.min(self.b.y);
             let max = self.a.y.max(self.b.y);
 
-            (min..=max).map(|y| Point { x: self.b.x, y }).collect()
+            (min..=max).map(|y| Point::new(self.b.x, y)).collect()
         } else {
             vec![]
         }
@@ -115,16 +127,16 @@ impl Segment {
             let min_y = self.a.y.min(self.b.y);
             let max_y = self.a.y.max(self.b.y);
 
-            let p = Point { x: min_x, y: min_y };
+            let p = Point::new(min_x, min_y);
             if p == self.a || p == self.b {
                 (min_x..=max_x)
                     .zip(min_y..=max_y)
-                    .map(|(x, y)| Point { x, y })
+                    .map(|(x, y)| Point::new(x, y))
                     .collect()
             } else {
                 (min_x..=max_x)
                     .zip((min_y..=max_y).rev())
-                    .map(|(x, y)| Point { x, y })
+                    .map(|(x, y)| Point::new(x, y))
                     .collect()
             }
         } else {
@@ -196,10 +208,7 @@ mod tests {
         let segment = "0,9 -> 5,9";
         assert_eq!(
             Segment::from_str(&segment).unwrap(),
-            Segment {
-                a: Point { x: 0, y: 9 },
-                b: Point { x: 5, y: 9 }
-            }
+            Segment::new(Point::new(0, 9), Point::new(5, 9))
         );
     }
 
