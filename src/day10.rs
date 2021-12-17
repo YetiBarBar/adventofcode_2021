@@ -71,28 +71,30 @@ pub fn process(expr: &str) -> ExpressionStatus {
     let mut stack = Vec::<char>::new();
 
     for c in expr.chars() {
-        if c == '}' {
-            if stack.last() != Some(&'{') {
-                return ExpressionStatus::Corrupted(c);
+        match c {
+            '}' => {
+                if stack.pop() != Some('{') {
+                    return ExpressionStatus::Corrupted(c);
+                }
             }
-            stack.pop();
-        } else if c == ']' {
-            if stack.last() != Some(&'[') {
-                return ExpressionStatus::Corrupted(c);
+            ']' => {
+                if stack.pop() != Some('[') {
+                    return ExpressionStatus::Corrupted(c);
+                }
             }
-            stack.pop();
-        } else if c == ')' {
-            if stack.last() != Some(&'(') {
-                return ExpressionStatus::Corrupted(c);
+            ')' => {
+                if stack.pop() != Some('(') {
+                    return ExpressionStatus::Corrupted(c);
+                }
             }
-            stack.pop();
-        } else if c == '>' {
-            if stack.last() != Some(&'<') {
-                return ExpressionStatus::Corrupted(c);
+            '>' => {
+                if stack.pop() != Some('<') {
+                    return ExpressionStatus::Corrupted(c);
+                }
             }
-            stack.pop();
-        } else {
-            stack.push(c);
+            _ => {
+                stack.push(c);
+            }
         }
     }
     if !stack.is_empty() {
@@ -101,7 +103,7 @@ pub fn process(expr: &str) -> ExpressionStatus {
     ExpressionStatus::Valid
 }
 
-/// Process solutions for day 1
+/// Process solutions for day 10
 ///
 /// # Errors
 ///
