@@ -250,18 +250,4 @@ mod tests {
         let input_data = to_matrix(&points).unwrap();
         assert_eq!(part_1(&input_data, Fold::Vertical, 7), 17);
     }
-
-    /*     #[test]
-        fn test_day12_part_2() {
-            let input_data = r#"start-A
-    start-b
-    A-c
-    A-b
-    b-d
-    A-end
-    b-end"#;
-
-            let input_data = parse_input(&input_data);
-            assert_eq!(part_2(&input_data), 36);
-        } */
 }

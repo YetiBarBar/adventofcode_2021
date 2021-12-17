@@ -6,8 +6,7 @@ use adventofcode_tooling::{read_lines, AocError};
 #[must_use]
 pub fn part_1(matrix: &Matrix2D<u8>) -> usize {
     let mut part_matrix = matrix.clone();
-    let by_turns = (0..100).map(|_| turn(&mut part_matrix)).collect::<Vec<_>>();
-    by_turns.iter().sum()
+    (0..100).map(|_| turn(&mut part_matrix)).sum()
 }
 
 #[must_use]
@@ -56,9 +55,7 @@ pub fn turn(matrix: &mut Matrix2D<u8>) -> usize {
 
             for position in neighbours {
                 if let Some(val) = matrix.values.get_mut(position.1 * width + position.0) {
-                    if *val != 0 {
-                        *val += 1;
-                    }
+                    *val = if *val == 0 { 0 } else { *val + 1 };
                 }
             }
         }
@@ -66,7 +63,7 @@ pub fn turn(matrix: &mut Matrix2D<u8>) -> usize {
     bytecount::count(&matrix.values, 0)
 }
 
-/// Process solutions for day 1
+/// Process solutions for day 11
 ///
 /// # Errors
 ///
