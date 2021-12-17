@@ -72,43 +72,31 @@ fn parse_range(input: &str) -> Result<(isize, isize), AocError> {
 
 impl Probe {
     fn step(&self, target: &Target) -> Option<Self> {
-        let (mut x, mut y, mut vx, mut vy, mut max_height) =
-            (self.x, self.y, self.vx, self.vy, self.max_height);
-        x += vx;
-        y += vy;
-        vx -= vx.signum();
-        vy -= 1;
+        let next_target = Probe {
+            x: self.x + self.vx,
+            y: self.y + self.vy,
+            vx: self.vx - self.vx.signum(),
+            vy: self.vy - 1,
+            max_height: self.max_height.max(self.y + self.vy),
+        };
 
-        if y.gt(&max_height) {
-            // If we reach an new top, update max height!
-            max_height = y;
-        }
-
-        if vx.le(&0) && x.lt(&target.xmin) {
-            // println!("Too low x:");
+        if next_target.vx.le(&0) && next_target.x.lt(&target.xmin) {
             // No hope to ever reach x_min
             return None;
         }
 
-        if vx.ge(&0) && x.gt(&target.xmax) {
+        if next_target.vx.ge(&0) && next_target.x.gt(&target.xmax) {
             // No hope to ever reach x_max
-            // println!("Too high x");
             return None;
         }
 
-        if vy.lt(&0) && y.lt(&target.ymin) {
+        if next_target.vy.lt(&0) && next_target.y.lt(&target.ymin) {
             // We go deep but are already to low!
             return None;
         }
 
-        // We can push a new point!
-        Some(Self {
-            x,
-            y,
-            vx,
-            vy,
-            max_height,
-        })
+        // We can push our new point!
+        Some(next_target)
     }
 }
 
