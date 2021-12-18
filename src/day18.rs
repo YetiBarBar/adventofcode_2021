@@ -51,7 +51,7 @@ impl SnailPair {
     }
 
     fn explode(&mut self) -> bool {
-        !matches!(self.do_explode(0), None)
+        !matches!(self.process_explode(0), None)
     }
 
     fn split(&mut self) -> bool {
@@ -84,7 +84,7 @@ impl SnailPair {
         })
     }
 
-    fn do_explode(&mut self, depth: usize) -> Option<(bool, usize, usize)> {
+    fn process_explode(&mut self, depth: usize) -> Option<(bool, usize, usize)> {
         if depth >= 4 {
             if let SnailPair(SnailNumber::Literal(a), SnailNumber::Literal(b)) = self {
                 return Some((true, *a, *b));
@@ -93,7 +93,7 @@ impl SnailPair {
 
         let left_eval = match &mut self.0 {
             SnailNumber::Literal(_) => None,
-            SnailNumber::Pair(p) => p.do_explode(depth + 1),
+            SnailNumber::Pair(p) => p.process_explode(depth + 1),
         };
         if let Some((first, a, b)) = left_eval {
             if first {
@@ -117,7 +117,7 @@ impl SnailPair {
         } else {
             let right_res = match &mut self.1 {
                 SnailNumber::Literal(_) => None,
-                SnailNumber::Pair(p) => p.do_explode(depth + 1),
+                SnailNumber::Pair(p) => p.process_explode(depth + 1),
             };
             if let Some((first, a, b)) = right_res {
                 if first {
@@ -161,17 +161,15 @@ fn part_1(data: &[SnailPair]) -> usize {
 ///
 /// can't produce error
 fn part_2(data: &[SnailPair]) -> usize {
-    let mut max_magnitude = 0;
-    for a in data {
-        for b in data {
-            if a == b {
-                continue;
+    data.iter()
+        .flat_map(move |a| data.iter().map(move |b| (a.clone(), b.clone())))
+        .fold(0, |max, (a, b)| {
+            if &a == &b {
+                max
+            } else {
+                max.max((a + b).mag())
             }
-            let m = (a.clone() + b.clone()).mag();
-            max_magnitude = m.max(max_magnitude);
-        }
-    }
-    max_magnitude
+        })
 }
 
 impl Add for SnailPair {
@@ -182,7 +180,6 @@ impl Add for SnailPair {
             SnailNumber::Pair(Box::new(self)),
             SnailNumber::Pair(Box::new(rhs)),
         );
-
         loop {
             if !(s.explode() || s.split()) {
                 break;
