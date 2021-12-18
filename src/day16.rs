@@ -1,6 +1,5 @@
-use std::path::PathBuf;
-
 use adventofcode_tooling::AocError;
+use std::path::PathBuf;
 
 #[derive(Debug, PartialEq)]
 struct Packet {
@@ -28,37 +27,41 @@ impl Packet {
                     panic!("Unexpected type 4 not literal!");
                 }
             }
-            Message::Operator(v) => match &self.type_id {
-                0 => v.iter().map(Packet::evaluate).sum(),
-                1 => v.iter().map(Packet::evaluate).product(),
-                2 => v.iter().map(Packet::evaluate).min().unwrap(),
-                3 => v.iter().map(Packet::evaluate).max().unwrap(),
-                5 => {
-                    let values: Vec<_> = v.iter().map(Packet::evaluate).collect();
-                    if values[0].gt(&values[1]) {
-                        1
-                    } else {
-                        0
+
+            Message::Operator(v) => {
+                let iter = v.iter().map(Packet::evaluate);
+                match &self.type_id {
+                    0 => iter.sum(),
+                    1 => iter.product(),
+                    2 => iter.min().unwrap(),
+                    3 => iter.max().unwrap(),
+                    5 => {
+                        let values: Vec<_> = iter.take(2).collect();
+                        if values[0].gt(&values[1]) {
+                            1
+                        } else {
+                            0
+                        }
                     }
-                }
-                6 => {
-                    let values: Vec<_> = v.iter().map(Packet::evaluate).collect();
-                    if values[0].lt(&values[1]) {
-                        1
-                    } else {
-                        0
+                    6 => {
+                        let values: Vec<_> = iter.take(2).collect();
+                        if values[0].lt(&values[1]) {
+                            1
+                        } else {
+                            0
+                        }
                     }
-                }
-                7 => {
-                    let values: Vec<_> = v.iter().map(Packet::evaluate).collect();
-                    if values[0].eq(&values[1]) {
-                        1
-                    } else {
-                        0
+                    7 => {
+                        let values: Vec<_> = iter.take(2).collect();
+                        if values[0].eq(&values[1]) {
+                            1
+                        } else {
+                            0
+                        }
                     }
+                    _ => unreachable!(),
                 }
-                _ => unreachable!(),
-            },
+            }
         }
     }
 }
@@ -86,6 +89,32 @@ fn n_to_m_bytes_to_usize(bits: &[usize], n: usize, m: usize) -> Option<usize> {
     }
 }
 
+#[must_use]
+fn parse_literal(data: &[usize], version: usize) -> Option<(Packet, usize)> {
+    let mut values = data[6..]
+        .chunks(5)
+        .take_while(|chunk| chunk[0] != 0)
+        .flat_map(|chunk| chunk[1..].iter())
+        .copied()
+        .collect::<Vec<usize>>();
+    values.extend(
+        data[6..].chunks(5).nth(values.len() / 4).unwrap()[1..]
+            .iter()
+            .copied(),
+    );
+
+    let literal = n_to_m_bytes_to_usize(&values, 0, values.len())?;
+    Some((
+        Packet {
+            version,
+            type_id: 4_usize,
+            message: Message::Literal(literal),
+        },
+        6 + 5 * values.len() / 4,
+    ))
+}
+
+#[must_use]
 fn parse_input(data: &[usize]) -> Option<(Packet, usize)> {
     let version = n_to_m_bytes_to_usize(data, 0, 3)?;
     let packet_id = n_to_m_bytes_to_usize(data, 3, 6)?;
@@ -93,73 +122,69 @@ fn parse_input(data: &[usize]) -> Option<(Packet, usize)> {
     // First case: A literal
     if packet_id == 4 {
         // We have a literal value
-        let mut values = data[6..]
-            .chunks(5)
-            .take_while(|chunk| chunk[0] != 0)
-            .flat_map(|chunk| chunk[1..].iter())
-            .copied()
-            .collect::<Vec<usize>>();
-        values.extend(
-            data[6..].chunks(5).nth(values.len() / 4).unwrap()[1..]
-                .iter()
-                .copied(),
-        );
-
-        let literal = n_to_m_bytes_to_usize(&values, 0, values.len())?;
-        return Some((
-            Packet {
-                version,
-                type_id: packet_id,
-                message: Message::Literal(literal),
-            },
-            6 + 5 * values.len() / 4,
-        ));
+        return parse_literal(data, version);
     }
 
-    // Second case: a unique subpacket
     if data[6] == 0 {
-        let sub_packet_len = n_to_m_bytes_to_usize(&data[7..7 + 15], 0, 15)?;
-        let mut parsed_size = 0;
-        let mut msg = Vec::new();
-        loop {
-            let (sub_packet, len) = parse_input(&data[(15 + 7 + parsed_size)..])?;
-
-            msg.push(sub_packet);
-            parsed_size += len;
-            if parsed_size.ge(&sub_packet_len) {
-                break;
-            }
-        }
-        return Some((
-            Packet {
-                version,
-                type_id: packet_id,
-                message: Message::Operator(msg),
-            },
-            7 + 15 + sub_packet_len,
-        ));
+        return parse_case_bit_6_zero(data, version, packet_id);
     }
 
+    // Third case: Bit 6 is one
     if data[6] == 1 {
-        let sub_packet_count = n_to_m_bytes_to_usize(&data[7..7 + 11], 0, 11)?;
-        let mut parsed_size = 0;
-        let mut msg = Vec::new();
-        for _ in 0..sub_packet_count {
-            let (sub_packet, len) = parse_input(&data[(11 + 7 + parsed_size)..])?;
-            msg.push(sub_packet);
-            parsed_size += len;
-        }
-        return Some((
-            Packet {
-                version,
-                type_id: packet_id,
-                message: Message::Operator(msg),
-            },
-            7 + 11 + parsed_size,
-        ));
+        return parse_case_bit_6_one(data, version, packet_id);
     }
 
     panic!("Unparsable message")
+}
+
+#[must_use]
+fn parse_case_bit_6_zero(
+    data: &[usize],
+    version: usize,
+    packet_id: usize,
+) -> Option<(Packet, usize)> {
+    let sub_packet_len = n_to_m_bytes_to_usize(&data[7..22], 0, 15)?;
+    let mut parsed_size = 0;
+    let mut msg = Vec::new();
+    while let Some((sub_packet, len)) = parse_input(&data[(22 + parsed_size)..]) {
+        msg.push(sub_packet);
+        parsed_size += len;
+        if parsed_size.ge(&sub_packet_len) {
+            break;
+        }
+    }
+    Some((
+        Packet {
+            version,
+            type_id: packet_id,
+            message: Message::Operator(msg),
+        },
+        22 + sub_packet_len,
+    ))
+}
+
+#[must_use]
+fn parse_case_bit_6_one(
+    data: &[usize],
+    version: usize,
+    packet_id: usize,
+) -> Option<(Packet, usize)> {
+    let sub_packet_count = n_to_m_bytes_to_usize(&data[7..18], 0, 11)?;
+    let (msg, parsed_size) =
+        (0..sub_packet_count).fold((Vec::new(), 18), |(mut v, parsed_size), _| {
+            let (sub_packet, len) = parse_input(&data[parsed_size..]).unwrap();
+            v.push(sub_packet);
+            (v, len + parsed_size)
+        });
+
+    Some((
+        Packet {
+            version,
+            type_id: packet_id,
+            message: Message::Operator(msg),
+        },
+        parsed_size,
+    ))
 }
 
 /// Process data for a given step

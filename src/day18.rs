@@ -163,13 +163,16 @@ fn part_1(data: &[SnailPair]) -> usize {
 fn part_2(data: &[SnailPair]) -> usize {
     data.iter()
         .flat_map(move |a| data.iter().map(move |b| (a.clone(), b.clone())))
-        .fold(0, |max, (a, b)| {
-            if &a == &b {
-                max
-            } else {
-                max.max((a + b).mag())
-            }
-        })
+        .fold(
+            0,
+            |max, (a, b)| {
+                if a == b {
+                    max
+                } else {
+                    max.max((a + b).mag())
+                }
+            },
+        )
 }
 
 impl Add for SnailPair {
