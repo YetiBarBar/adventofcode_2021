@@ -70,15 +70,10 @@ impl FromStr for BeaconRelativePos {
 
 #[derive(Debug, Clone)]
 struct Probe {
-    id: usize,
     beacons: HashSet<BeaconRelativePos>,
 }
 
 impl Probe {
-    fn id(&self) -> usize {
-        self.id
-    }
-
     fn orientate_all_beacons(&self, idx: usize) -> HashSet<(isize, isize, isize)> {
         self.beacons
             .iter()
@@ -111,7 +106,8 @@ impl Probe {
                     .count()
                     .ge(&12)
                 {
-                    self.beacons.extend(translated.iter().map(|b| b.into()));
+                    self.beacons
+                        .extend(translated.iter().map(std::convert::Into::into));
                     return Some((dx, dy, dz));
                 }
             }
@@ -128,7 +124,7 @@ impl FromStr for Probe {
         if lines.len() < 2 {
             return Err(AocError::ParsingError);
         }
-        let id = lines
+        let _id = lines
             .get(0)
             .and_then(|s| s.split(' ').nth(2))
             .and_then(|val| val.parse::<usize>().ok())
@@ -140,7 +136,7 @@ impl FromStr for Probe {
             .map(|line| line.parse::<BeaconRelativePos>())
             .collect::<Result<_, _>>()?;
 
-        Ok(Probe { id, beacons })
+        Ok(Probe { beacons })
     }
 }
 
@@ -165,7 +161,6 @@ pub fn main() -> Result<(), AocError> {
     let mut dist = vec![];
 
     while !probes.is_empty() {
-        println!("Probes len: {}", probes.len());
         for idx in (0..probes.len()).rev() {
             if let Some(distance) = global_map.try_merge(&probes[idx]) {
                 dist.push(distance);
@@ -185,19 +180,4 @@ pub fn main() -> Result<(), AocError> {
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_day19_step1() {
-        assert!(true)
-    }
-
-    #[test]
-    fn test_day19_step2() {
-        assert!(true)
-    }
 }

@@ -1,10 +1,7 @@
-use std::{
-    collections::{HashMap, HashSet},
-    fs::read_to_string,
-    path::PathBuf,
-};
+use std::{fs::read_to_string, path::PathBuf};
 
 use adventofcode_tooling::AocError;
+use hashbrown::{HashMap, HashSet};
 
 #[must_use]
 fn part_1(data: &HashMap<String, HashSet<String>>) -> usize {
