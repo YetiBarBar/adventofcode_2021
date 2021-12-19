@@ -1,6 +1,7 @@
 use adventofcode_tooling::AocError;
+use hashbrown::HashSet;
 use itertools::Itertools;
-use std::{collections::HashSet, path::PathBuf, str::FromStr};
+use std::{path::PathBuf, str::FromStr};
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
 struct BeaconRelativePos(isize, isize, isize);
@@ -143,27 +144,7 @@ impl FromStr for Probe {
     }
 }
 
-/// Process data for a given step
-///
-/// # Errors
-///
-/// can't produce error
-fn part_1(_data: &[Probe]) -> usize {
-    println!("Part 2 is not implemented yet!");
-    0_usize
-}
-
-/// Process data for a given step
-///
-/// # Errors
-///
-/// can't produce error
-fn part_2(_data: &[Probe]) -> usize {
-    println!("Part 2 is not implemented yet!");
-    0_usize
-}
-
-/// Process solutions for day 1
+/// Process solutions for day 19
 ///
 /// # Errors
 ///
@@ -187,7 +168,6 @@ pub fn main() -> Result<(), AocError> {
         println!("Probes len: {}", probes.len());
         for idx in (0..probes.len()).rev() {
             if let Some(distance) = global_map.try_merge(&probes[idx]) {
-                // println!("Some distance");
                 dist.push(distance);
                 probes.swap_remove(idx);
             }
