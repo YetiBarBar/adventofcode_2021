@@ -77,7 +77,12 @@ path = "src/day17.rs"
 name = "day18"
 path = "src/day18.rs"
 
+[[bin]]
+name = "day19"
+path = "src/day19.rs"
+
 [dependencies]
 thiserror = "1.0.30"
 bytecount = "0.6.2"
 adventofcode-tooling = { path = "../adventofcode-tooling/"}
+itertools = "0.10.3"
