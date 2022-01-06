@@ -22,30 +22,51 @@ impl Iterator for DiceIterator {
     }
 }
 
-fn part_1(player_1: usize, player_2: usize) -> usize {
-    let mut p1 = player_1 - 1;
-    let mut p1_score = 0_usize;
-    let mut p2 = player_2 - 1;
-    let mut p2_score = 0_usize;
-    let mut dice = DiceIterator::new();
-    while p1_score.lt(&1000) && p2_score.lt(&1000) {
-        let sum = dice.by_ref().take(3).sum::<usize>();
-        p1 += sum;
-        p1 %= 10;
-        p1_score += p1 + 1;
+struct Player {
+    position: usize,
+    score: usize,
+}
 
-        if p1_score.lt(&1000) {
-            let sum = dice.by_ref().take(3).sum::<usize>();
-            p2 += sum;
-            p2 %= 10;
-            p2_score += p2 + 1;
+impl Player {
+    pub fn new(position: usize) -> Self {
+        Player {
+            position: position - 1,
+            score: 0,
         }
     }
 
-    p1_score.min(p2_score) * dice.turns()
+    pub fn advance_by(&mut self, move_val: usize) {
+        self.position += move_val;
+        self.position %= 10;
+        self.score += self.position + 1;
+    }
+
+    pub fn score(&self) -> usize {
+        self.score
+    }
 }
 
-/// Process solutions for day 1
+fn part_1(player_1: usize, player_2: usize) -> usize {
+    let mut player1 = Player::new(player_1);
+    let mut player2 = Player::new(player_2);
+
+    let mut dice = DiceIterator::new();
+
+    loop {
+        player1.advance_by(dice.by_ref().take(3).sum());
+        if player1.score().ge(&1000) {
+            break;
+        }
+        player2.advance_by(dice.by_ref().take(3).sum());
+        if player2.score().ge(&1000) {
+            break;
+        }
+    }
+
+    player1.score().min(player2.score()) * dice.turns()
+}
+
+/// Process solutions for day 21
 ///
 /// # Errors
 ///
