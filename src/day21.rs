@@ -1,4 +1,5 @@
 use adventofcode_tooling::AocError;
+use std::collections::HashMap;
 
 struct DiceIterator(usize);
 
@@ -22,9 +23,22 @@ impl Iterator for DiceIterator {
     }
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Copy)]
 struct Player {
     position: usize,
     score: usize,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Copy)]
+struct Game {
+    players: [Player; 2],
+}
+impl Game {
+    fn advance(&self, player: usize, roll: usize) -> Self {
+        let mut next = *self;
+        next.players[player].advance_by(roll);
+        next
+    }
 }
 
 impl Player {
@@ -35,8 +49,8 @@ impl Player {
         }
     }
 
-    pub fn advance_by(&mut self, move_val: usize) {
-        self.position += move_val;
+    pub fn advance_by(&mut self, move_index: usize) {
+        self.position += move_index;
         self.position %= 10;
         self.score += self.position + 1;
     }
@@ -46,9 +60,9 @@ impl Player {
     }
 }
 
-fn part_1(player_1: usize, player_2: usize) -> usize {
-    let mut player1 = Player::new(player_1);
-    let mut player2 = Player::new(player_2);
+fn part_1(player1: usize, player2: usize) -> usize {
+    let mut player1 = Player::new(player1);
+    let mut player2 = Player::new(player2);
 
     let mut dice = DiceIterator::new();
 
@@ -66,6 +80,36 @@ fn part_1(player_1: usize, player_2: usize) -> usize {
     player1.score().min(player2.score()) * dice.turns()
 }
 
+fn part_2(player1: usize, player2: usize) -> usize {
+    let players = [Player::new(player1), Player::new(player2)];
+    let mut wins = [0_usize, 0];
+    let mut games = HashMap::from([(Game { players }, 1_usize)]);
+
+    let rolls: Vec<_> = (1..=3)
+        .flat_map(|a| (1..=3).flat_map(move |b| (1..=3).map(move |c| a + b + c)))
+        .collect();
+
+    for player in (0..=1).cycle() {
+        let mut next = HashMap::new();
+        for &roll in &rolls {
+            for (game, universes) in &games {
+                let advanced = game.advance(player, roll);
+                if advanced.players[player].score >= 21 {
+                    wins[player] += universes;
+                } else {
+                    *next.entry(advanced).or_default() += universes;
+                }
+            }
+        }
+        games = next;
+        if games.is_empty() {
+            break;
+        }
+    }
+    let [p1_wins, p2_wins] = wins;
+    p1_wins.max(p2_wins)
+}
+
 /// Process solutions for day 21
 ///
 /// # Errors
@@ -75,7 +119,7 @@ pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
 
     println!("Part 1: {:?}", part_1(1, 5));
-    // println!("Part 2: {:?}", part_2(&values));
+    println!("Part 2: {:?}", part_2(1, 5));
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())
