@@ -74,7 +74,7 @@ impl<T: Clone> Matrix2D<T> {
     }
 
     #[must_use]
-    fn x_y_to_idx(&self, x: usize, y: usize) -> Option<T> {
+    pub fn x_y_to_idx(&self, x: usize, y: usize) -> Option<T> {
         if x.ge(&self.width) || y.ge(&self.height) {
             None
         } else {

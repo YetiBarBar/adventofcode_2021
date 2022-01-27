@@ -137,7 +137,7 @@ mod tests {
     #[test]
     fn test_day21_part2() {
         // let values: &[usize] = &[199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
-        // assert_eq!(part_2(values), Ok(5));
+        assert_eq!(part_2(4, 8), 444356092776315);
         assert!(true)
     }
 }
