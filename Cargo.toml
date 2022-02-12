@@ -98,4 +98,4 @@ thiserror = "1.0.30"
 bytecount = "0.6.2"
 adventofcode-tooling = { path = "../adventofcode-tooling/"}
 itertools = "0.10.3"
-hashbrown = "0.11.2"
+hashbrown = "0.12.0"

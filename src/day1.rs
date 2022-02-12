@@ -1,3 +1,5 @@
+use std::num::NonZeroUsize;
+
 use adventofcode_tooling::{read_lines_to_vec_t, AocError};
 
 /// Process data for a given step
@@ -5,17 +7,21 @@ use adventofcode_tooling::{read_lines_to_vec_t, AocError};
 /// # Errors
 ///
 /// step has to be greater than 1
-pub fn process(data: &[usize], step: usize) -> Result<usize, &'static str> {
-    if data.len().lt(&step) {
-        return Err("Trying to process a step larger than data");
-    }
-    match step {
-        0 => Err("Invalid step: 0"),
-        _ => Ok(data
-            .windows(step)
-            .filter(|&window| window[step - 1] > window[0])
-            .count()),
-    }
+pub fn process(data: &[usize], step: NonZeroUsize) -> usize {
+    // if data.len().lt(&step) {
+    //     return Err("Trying to process a step larger than data");
+    // }
+    // match step {
+    //     0 => Err("Invalid step: 0"),
+    //     _ => Ok(data
+    //         .windows(step)
+    //         .filter(|&window| window[step - 1] > window[0])
+    //         .count()),
+    // }
+    let step: usize = step.into();
+    data.windows(step)
+        .filter(|&windows| windows[step.saturating_sub(1)] > windows[0])
+        .count()
 }
 
 /// Process data for a given step
@@ -23,8 +29,8 @@ pub fn process(data: &[usize], step: usize) -> Result<usize, &'static str> {
 /// # Errors
 ///
 /// can't produce error
-pub fn part_1(data: &[usize]) -> Result<usize, &'static str> {
-    process(data, 2)
+pub fn part_1(data: &[usize]) -> usize {
+    process(data, NonZeroUsize::new(2).unwrap())
 }
 
 /// Process data for a given step
@@ -32,8 +38,8 @@ pub fn part_1(data: &[usize]) -> Result<usize, &'static str> {
 /// # Errors
 ///
 /// can't produce error
-pub fn part_2(data: &[usize]) -> Result<usize, &'static str> {
-    process(data, 4)
+pub fn part_2(data: &[usize]) -> usize {
+    process(data, NonZeroUsize::new(4).unwrap())
 }
 
 /// Process solutions for day 1
@@ -59,12 +65,12 @@ mod tests {
     #[test]
     fn test_day1_step1() {
         let values: &[usize] = &[199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
-        assert_eq!(part_1(values), Ok(7));
+        assert_eq!(part_1(values), 7);
     }
 
     #[test]
     fn test_day1_step2() {
         let values: &[usize] = &[199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
-        assert_eq!(part_2(values), Ok(5));
+        assert_eq!(part_2(values), 5);
     }
 }
