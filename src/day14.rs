@@ -86,6 +86,7 @@ pub fn process(data: &str, steps: usize) -> usize {
         .fold(message, |acc, _| acc.grow(&hmap))
         .min_max(first, last);
 
+    println!("Min: {}, Max: {}", min, max);
     max - min
 }
 
@@ -169,6 +170,6 @@ BC -> B
 CC -> N
 CN -> C"#;
 
-        assert_eq!(part_1(&data), 1588);
+        assert_eq!(part_1(data), 1588);
     }
 }

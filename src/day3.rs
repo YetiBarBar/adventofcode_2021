@@ -43,11 +43,7 @@ impl BitCounter {
 /// can't produce error
 pub fn part_1<T: AsRef<str>>(data: &[T]) -> Result<isize, AocError> {
     let str_len = data[1].as_ref().len();
-    let mut initial_vec = Vec::new();
-    for _ in 0..str_len {
-        initial_vec.push(BitCounter::new());
-    }
-
+    let mut initial_vec = vec![BitCounter::new(); str_len];
     data.iter().map(std::convert::AsRef::as_ref).for_each(|s| {
         s.chars().enumerate().for_each(|(pos, c)| {
             if c == '0' {

@@ -1,4 +1,4 @@
-use adventofcode_tooling::AocError;
+/* use adventofcode_tooling::AocError;
 use std::collections::HashMap;
 
 struct DiceIterator(usize);
@@ -118,8 +118,9 @@ fn part_2(player1: usize, player2: usize) -> usize {
 pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
 
-    println!("Part 1: {:?}", part_1(1, 5));
-    println!("Part 2: {:?}", part_2(1, 5));
+    // CODE A REPRENDRE
+    // println!("Part 1: {:?}", part_1(1, 5));
+    // println!("Part 2: {:?}", part_2(1, 5));
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())
@@ -130,12 +131,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_day21_part1() {
-        assert_eq!(part_1(4, 8), 739785);
+    fn test_day22_part1() {
+        assert!(true)
     }
 
     #[test]
-    fn test_day21_part2() {
-        assert_eq!(part_2(4, 8), 444356092776315);
+    fn test_day22_part2() {
+        assert!(true)
     }
+}
+ */
+pub fn main() {
+    println!("Todo!");
 }

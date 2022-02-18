@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use hashbrown::HashMap;
 
 use adventofcode_tooling::{read_lines, AocError};
 
@@ -13,7 +13,7 @@ pub fn part_1(values: &[String]) -> usize {
                 .split(' ')
                 .filter(|item| {
                     let l = item.len();
-                    [2, 3, 4, 7].contains(&l)
+                    l == 2 || l == 3 || l == 4 || l == 7
                 })
                 .count()
         })
@@ -59,11 +59,8 @@ pub fn solve(input: &str) -> HashMap<String, usize> {
 
     */
     let mut hmap = HashMap::new();
-    let s = input
-        .split(' ')
-        //.map(|s| s.to_string())
-        .collect::<Vec<_>>();
-    let my_default = ""; //.to_string();
+    let s = input.split(' ').collect::<Vec<_>>();
+    let my_default = "";
     let one = s.iter().find(|s| s.len() == 2).unwrap_or(&my_default);
     let seven = s.iter().find(|s| s.len() == 3).unwrap_or(&my_default);
     let four = s.iter().find(|s| s.len() == 4).unwrap_or(&my_default);

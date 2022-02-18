@@ -1,4 +1,5 @@
-use std::{collections::HashMap, fmt::Debug, str::FromStr};
+use hashbrown::HashMap;
+use std::{fmt::Debug, str::FromStr};
 
 use adventofcode_tooling::{read_lines_to_vec_t, AocError};
 
@@ -99,8 +100,11 @@ impl Segment {
     #[must_use]
     pub fn h_points(&self) -> Vec<Point> {
         if self.is_horizontal() {
-            let min = self.a.x.min(self.b.x);
-            let max = self.a.x.max(self.b.x);
+            let (min, max) = match self.a.x.cmp(&self.b.x) {
+                std::cmp::Ordering::Greater => (self.b.x, self.a.x),
+                _ => (self.a.x, self.b.x),
+            };
+
             (min..=max).map(|x| Point::new(x, self.b.y)).collect()
         } else {
             vec![]
@@ -110,8 +114,10 @@ impl Segment {
     #[must_use]
     pub fn v_points(&self) -> Vec<Point> {
         if self.is_vertical() {
-            let min = self.a.y.min(self.b.y);
-            let max = self.a.y.max(self.b.y);
+            let (min, max) = match self.a.y.cmp(&self.b.y) {
+                std::cmp::Ordering::Greater => (self.b.y, self.a.y),
+                _ => (self.a.y, self.b.y),
+            };
 
             (min..=max).map(|y| Point::new(self.b.x, y)).collect()
         } else {
@@ -122,10 +128,14 @@ impl Segment {
     #[must_use]
     pub fn diag_points(&self) -> Vec<Point> {
         if self.is_diagonal() {
-            let min_x = self.a.x.min(self.b.x);
-            let max_x = self.a.x.max(self.b.x);
-            let min_y = self.a.y.min(self.b.y);
-            let max_y = self.a.y.max(self.b.y);
+            let (min_x, max_x) = match self.a.x.cmp(&self.b.x) {
+                std::cmp::Ordering::Greater => (self.b.x, self.a.x),
+                _ => (self.a.x, self.b.x),
+            };
+            let (min_y, max_y) = match self.a.y.cmp(&self.b.y) {
+                std::cmp::Ordering::Greater => (self.b.y, self.a.y),
+                _ => (self.a.y, self.b.y),
+            };
 
             let p = Point::new(min_x, min_y);
             if p == self.a || p == self.b {
@@ -149,7 +159,7 @@ impl Segment {
 /// # Errors
 ///
 /// TBD
-pub fn part_1(data: &[Segment]) -> Result<usize, AocError> {
+pub fn part_1(data: &[Segment]) -> usize {
     process(data, Segment::is_horizontal_or_vertical)
 }
 
@@ -158,7 +168,7 @@ pub fn part_1(data: &[Segment]) -> Result<usize, AocError> {
 /// # Errors
 ///
 /// TBD
-pub fn part_2(data: &[Segment]) -> Result<usize, AocError> {
+pub fn part_2(data: &[Segment]) -> usize {
     process(data, Segment::is_horizontal_vertical_or_diagonal)
 }
 
@@ -167,10 +177,7 @@ pub fn part_2(data: &[Segment]) -> Result<usize, AocError> {
 /// # Errors
 ///
 /// TBD
-pub fn process(
-    data: &[Segment],
-    seg_condition: impl Fn(&Segment) -> bool,
-) -> Result<usize, AocError> {
+pub fn process(data: &[Segment], seg_condition: impl Fn(&Segment) -> bool) -> usize {
     let mut hmap: HashMap<_, usize> = HashMap::new();
     data.iter()
         .filter(|s| seg_condition(s))
@@ -179,7 +186,7 @@ pub fn process(
             let pos = (point.x, point.y);
             *hmap.entry(pos).or_default() += 1;
         });
-    Ok(hmap.iter().filter(|&(_, val)| val.ge(&2)).count())
+    hmap.iter().filter(|&(_, val)| val.ge(&2)).count()
 }
 
 /// Process solutions for day 5
@@ -187,7 +194,7 @@ pub fn process(
 /// # Errors
 ///
 /// May fail if input data cannot be read
-pub fn main() -> Result<(), AocError> {
+pub fn main() {
     let now = std::time::Instant::now();
     let values: Vec<Segment> = read_lines_to_vec_t("day_2021_5.data");
 
@@ -196,7 +203,6 @@ pub fn main() -> Result<(), AocError> {
 
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
-    Ok(())
 }
 
 #[cfg(test)]
@@ -207,7 +213,7 @@ mod tests {
     fn test_day5_segment_from_str() {
         let segment = "0,9 -> 5,9";
         assert_eq!(
-            Segment::from_str(&segment).unwrap(),
+            Segment::from_str(segment).unwrap(),
             Segment::new(Point::new(0, 9), Point::new(5, 9))
         );
     }
@@ -229,7 +235,7 @@ mod tests {
             .lines()
             .map(|l| Segment::from_str(l).unwrap())
             .collect();
-        assert_eq!(part_1(&input).unwrap(), 5);
+        assert_eq!(part_1(&input), 5);
     }
     #[test]
     fn test_day5_step2() {
@@ -248,7 +254,6 @@ mod tests {
             .lines()
             .map(|l| Segment::from_str(l).unwrap())
             .collect();
-        assert_eq!(part_2(&input).unwrap(), 12);
-        assert!(true);
+        assert_eq!(part_2(&input), 12);
     }
 }

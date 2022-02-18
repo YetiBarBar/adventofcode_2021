@@ -72,9 +72,9 @@ pub fn fold_matrix(
     coord: usize,
 ) -> Matrix2D<CaseStatus> {
     let matrix = if fold == Fold::Horizontal {
-        matrix.transpose()
+        std::borrow::Cow::Owned(matrix.transpose())
     } else {
-        matrix.clone()
+        std::borrow::Cow::Borrowed(matrix)
     };
 
     let rows = matrix.rows();
@@ -146,8 +146,7 @@ pub fn to_matrix(points: &[Point]) -> Result<Matrix2D<CaseStatus>, AocError> {
 
 #[must_use]
 fn part_1(data: &Matrix2D<CaseStatus>, order: Fold, coord: usize) -> usize {
-    let folded_1 = fold_matrix(data, order, coord);
-    folded_1
+    fold_matrix(data, order, coord)
         .values
         .iter()
         .filter(|&&c| c == CaseStatus::Full)
@@ -161,11 +160,6 @@ fn part_2(data: &Matrix2D<CaseStatus>, orders: &[(Fold, usize)]) -> String {
         res = fold_matrix(&res.clone(), order.0, order.1);
     }
     display_me(&res)
-}
-
-#[must_use]
-pub fn is_small_cave(cave: &str) -> bool {
-    cave.chars().all(|c| c.is_ascii_lowercase())
 }
 
 /// Process solutions for day 12

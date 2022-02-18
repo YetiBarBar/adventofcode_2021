@@ -6,11 +6,10 @@ use adventofcode_tooling::{read_lines, AocError};
 /// # Errors
 ///
 /// can't produce error
-pub fn part_1<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Error>> {
+#[must_use]
+pub fn part_1(data: &[Command]) -> isize {
     let (horizontal, depth) = data
         .iter()
-        .map(|s| s.as_ref().parse::<Command>())
-        .map(Result::unwrap)
         .fold((0, 0), |(mut horizontal, mut depth), dir| {
             match dir.direction {
                 Direction::Forward => {
@@ -26,7 +25,7 @@ pub fn part_1<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Er
 
             (horizontal, depth)
         });
-    Ok(horizontal * depth)
+    horizontal * depth
 }
 
 /// Process data for a given step
@@ -34,27 +33,26 @@ pub fn part_1<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Er
 /// # Errors
 ///
 /// can't produce error
-pub fn part_2<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Error>> {
-    let (horizontal, depth, _) = data
-        .iter()
-        .map(|s| s.as_ref().parse::<Command>())
-        .map(Result::unwrap)
-        .fold((0, 0, 0), |(mut horizontal, mut depth, mut aim), dir| {
-            match dir.direction {
-                Direction::Forward => {
-                    horizontal += dir.value;
-                    depth += dir.value * aim;
+#[must_use]
+pub fn part_2(data: &[Command]) -> isize {
+    let (horizontal, depth, _) =
+        data.iter()
+            .fold((0, 0, 0), |(mut horizontal, mut depth, mut aim), dir| {
+                match dir.direction {
+                    Direction::Forward => {
+                        horizontal += dir.value;
+                        depth += dir.value * aim;
+                    }
+                    Direction::Down => {
+                        aim += dir.value;
+                    }
+                    Direction::Up => {
+                        aim -= dir.value;
+                    }
                 }
-                Direction::Down => {
-                    aim += dir.value;
-                }
-                Direction::Up => {
-                    aim -= dir.value;
-                }
-            }
-            (horizontal, depth, aim)
-        });
-    Ok(horizontal * depth)
+                (horizontal, depth, aim)
+            });
+    horizontal * depth
 }
 
 /// Process solutions for day 2
@@ -64,10 +62,14 @@ pub fn part_2<T: AsRef<str>>(data: &[T]) -> Result<isize, Box<dyn std::error::Er
 /// May fail if input data cannot be read
 pub fn main() -> Result<(), AocError> {
     let now = std::time::Instant::now();
-    let values: Vec<_> = read_lines("day_2021_2.data")?.map(Result::unwrap).collect();
+    let values: Vec<_> = read_lines("day_2021_2.data")?
+        .map(Result::unwrap)
+        .map(|s| s.parse::<Command>())
+        .map(Result::unwrap)
+        .collect();
 
-    println!("Part 1: {:?}", part_1(&values));
-    println!("Part 2: {:?}", part_2(&values));
+    println!("Part 1: {}", part_1(&values));
+    println!("Part 2: {}", part_2(&values));
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
     Ok(())
@@ -87,7 +89,12 @@ mod tests {
             "down 8",
             "forward 2",
         ];
-        assert_eq!(part_1(values).unwrap(), 150);
+        let values = values
+            .iter()
+            .map(|s| s.parse::<Command>())
+            .map(Result::unwrap)
+            .collect::<Vec<_>>();
+        assert_eq!(part_1(&values), 150);
     }
 
     #[test]
@@ -100,6 +107,11 @@ mod tests {
             "down 8",
             "forward 2",
         ];
-        assert_eq!(part_2(values).unwrap(), 900);
+        let values = values
+            .iter()
+            .map(|s| s.parse::<Command>())
+            .map(Result::unwrap)
+            .collect::<Vec<_>>();
+        assert_eq!(part_2(&values), 900);
     }
 }

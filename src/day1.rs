@@ -1,23 +1,14 @@
 use std::num::NonZeroUsize;
 
-use adventofcode_tooling::{read_lines_to_vec_t, AocError};
+use adventofcode_tooling::read_lines_to_vec_t;
 
 /// Process data for a given step
 ///
 /// # Errors
 ///
 /// step has to be greater than 1
+#[must_use]
 pub fn process(data: &[usize], step: NonZeroUsize) -> usize {
-    // if data.len().lt(&step) {
-    //     return Err("Trying to process a step larger than data");
-    // }
-    // match step {
-    //     0 => Err("Invalid step: 0"),
-    //     _ => Ok(data
-    //         .windows(step)
-    //         .filter(|&window| window[step - 1] > window[0])
-    //         .count()),
-    // }
     let step: usize = step.into();
     data.windows(step)
         .filter(|&windows| windows[step.saturating_sub(1)] > windows[0])
@@ -25,37 +16,26 @@ pub fn process(data: &[usize], step: NonZeroUsize) -> usize {
 }
 
 /// Process data for a given step
-///
-/// # Errors
-///
-/// can't produce error
+#[must_use]
 pub fn part_1(data: &[usize]) -> usize {
-    process(data, NonZeroUsize::new(2).unwrap())
+    process(data, unsafe { NonZeroUsize::new_unchecked(2) })
 }
 
 /// Process data for a given step
-///
-/// # Errors
-///
-/// can't produce error
+#[must_use]
 pub fn part_2(data: &[usize]) -> usize {
-    process(data, NonZeroUsize::new(4).unwrap())
+    process(data, unsafe { NonZeroUsize::new_unchecked(4) })
 }
 
 /// Process solutions for day 1
-///
-/// # Errors
-///
-/// May fail if input data cannot be read
-pub fn main() -> Result<(), AocError> {
+pub fn main() {
     let now = std::time::Instant::now();
 
     let values = read_lines_to_vec_t("day_2021_1.data");
-    println!("Part 1: {:?}", part_1(&values));
-    println!("Part 2: {:?}", part_2(&values));
+    println!("Part 1: {}", part_1(&values));
+    println!("Part 2: {}", part_2(&values));
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
-    Ok(())
 }
 
 #[cfg(test)]

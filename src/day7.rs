@@ -1,4 +1,4 @@
-use adventofcode_tooling::{read_single_string_to_t_vec, AocError};
+use adventofcode_tooling::read_single_string_to_t_vec;
 
 #[must_use]
 pub fn part_1(values: &[isize]) -> Option<isize> {
@@ -18,12 +18,9 @@ pub fn process(values: &[isize], distance: impl Fn(isize, isize) -> isize) -> Op
         .min()
 }
 
-/// Process solutions for day 1
+/// Process solutions for day 7
 ///
-/// # Errors
-///
-/// May fail if input data cannot be read
-pub fn main() -> Result<(), AocError> {
+pub fn main() {
     let now = std::time::Instant::now();
 
     // Read file to a single string
@@ -33,8 +30,6 @@ pub fn main() -> Result<(), AocError> {
     println!("Part 2: {:?}", part_2(&values));
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());
-
-    Ok(())
 }
 
 #[cfg(test)]

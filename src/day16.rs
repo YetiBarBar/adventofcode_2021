@@ -37,27 +37,15 @@ impl Packet {
                     3 => iter.max().unwrap(),
                     5 => {
                         let values: Vec<_> = iter.take(2).collect();
-                        if values[0].gt(&values[1]) {
-                            1
-                        } else {
-                            0
-                        }
+                        values[0].gt(&values[1]).into()
                     }
                     6 => {
                         let values: Vec<_> = iter.take(2).collect();
-                        if values[0].lt(&values[1]) {
-                            1
-                        } else {
-                            0
-                        }
+                        values[0].lt(&values[1]).into()
                     }
                     7 => {
                         let values: Vec<_> = iter.take(2).collect();
-                        if values[0].eq(&values[1]) {
-                            1
-                        } else {
-                            0
-                        }
+                        values[0].eq(&values[1]).into()
                     }
                     _ => unreachable!(),
                 }
