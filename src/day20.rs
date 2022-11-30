@@ -73,7 +73,7 @@ pub fn parse_input(data_in: &str) -> Result<(Vec<bool>, Matrix2D<bool>), AocErro
         return Err(AocError::ParsingError);
     }
 
-    let header = lines.get(0).unwrap_or(&"").trim();
+    let header = lines.first().unwrap_or(&"").trim();
     if header.len() != 512 {
         return Err(AocError::ParsingError);
     }

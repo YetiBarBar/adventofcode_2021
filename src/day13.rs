@@ -3,7 +3,7 @@ use std::{fmt::Display, fs::read_to_string, path::PathBuf, str::FromStr};
 use adventofcode_2021::Matrix2D;
 use adventofcode_tooling::AocError;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Point {
     x: usize,
     y: usize,
@@ -30,7 +30,7 @@ fn parse_part<T: FromStr>(parts: &[&str], idx: usize) -> Result<T, AocError> {
         .map_err(|_| AocError::ParsingError)
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CaseStatus {
     Full,
     Empty,
@@ -59,7 +59,7 @@ pub fn display_me(matrix: &Matrix2D<CaseStatus>) -> String {
     s
 }
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Eq)]
 pub enum Fold {
     Horizontal,
     Vertical,

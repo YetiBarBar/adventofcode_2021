@@ -3,7 +3,7 @@ use std::{fmt::Debug, str::FromStr};
 
 use adventofcode_tooling::{read_lines_to_vec_t, AocError};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Point {
     x: isize,
     y: isize,
@@ -37,7 +37,7 @@ fn parse_part<T: FromStr>(parts: &[&str], idx: usize) -> Result<T, AocError> {
         .map_err(|_| AocError::ParsingError)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Segment {
     pub a: Point,
     pub b: Point,

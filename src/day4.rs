@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use adventofcode_2021::Matrix2D;
 use adventofcode_tooling::AocError;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Mark {
     Checked,
     Unchecked,
@@ -17,7 +17,7 @@ pub fn daymatrix_from_str(s: &str) -> DayMatrix {
 
     let values: Vec<_> = s
         .lines()
-        .flat_map(|line| line.trim().split_whitespace())
+        .flat_map(str::split_whitespace)
         .map(str::trim)
         .map(str::parse)
         .map(Result::unwrap)

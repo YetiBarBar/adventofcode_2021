@@ -80,8 +80,8 @@ fn part_1(player1: usize, player2: usize) -> usize {
     player1.score().min(player2.score()) * dice.turns()
 }
 
-fn part_2(player1: usize, player2: usize) -> usize {
-    let players = [Player::new(player1), Player::new(player2)];
+fn part_2(player_1: usize, player_2: usize) -> usize {
+    let players = [Player::new(player_1), Player::new(player_2)];
     let mut wins = [0_usize, 0];
     let mut games = HashMap::from([(Game { players }, 1_usize)]);
 

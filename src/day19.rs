@@ -125,7 +125,7 @@ impl FromStr for Probe {
             return Err(AocError::ParsingError);
         }
         let _id = lines
-            .get(0)
+            .first()
             .and_then(|s| s.split(' ').nth(2))
             .and_then(|val| val.parse::<usize>().ok())
             .ok_or(AocError::ParsingError)?;
