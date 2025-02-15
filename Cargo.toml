@@ -94,8 +94,8 @@ name = "day22"
 path = "src/day22.rs"
 
 [dependencies]
-thiserror = "1.0.30"
+thiserror = "2.0.11"
 bytecount = "0.6.2"
-adventofcode-tooling = { path = "../adventofcode-tooling/"}
-itertools = "0.10.3"
-hashbrown = "0.12.0"
+adventofcode-tooling = { path = "../adventofcode-tooling/" }
+itertools = "0.14.0"
+hashbrown = "0.15.2"
