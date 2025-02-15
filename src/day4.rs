@@ -88,7 +88,7 @@ pub fn part_1(draw: &[usize], cards: &mut [DayMatrix]) -> Result<usize, AocError
     }
     let mut last_draw = None;
 
-    for val in draw.iter() {
+    for val in draw {
         last_draw = Some(*val);
         cards.iter_mut().for_each(|s| s.mark_value_checked(*val));
         if cards.iter().any(DayMatrix::is_winning) {
@@ -111,7 +111,7 @@ pub fn part_1(draw: &[usize], cards: &mut [DayMatrix]) -> Result<usize, AocError
 /// can't produce erro
 pub fn part_2(draw: &[usize], cards: &mut [DayMatrix]) -> Result<usize, AocError> {
     let mut cards = cards.to_vec();
-    for val in draw.iter() {
+    for val in draw {
         cards.iter_mut().for_each(|s| s.mark_value_checked(*val));
         cards = cards
             .iter()
@@ -130,7 +130,7 @@ pub fn part_2(draw: &[usize], cards: &mut [DayMatrix]) -> Result<usize, AocError
     let mut matrix_found: DayMatrix = cards.pop().ok_or(AocError::ParsingError)?;
 
     let mut last_draw = None;
-    for val in draw.iter() {
+    for val in draw {
         last_draw = Some(*val);
         matrix_found.mark_value_checked(*val);
         if matrix_found.is_winning() {
@@ -184,7 +184,7 @@ mod tests {
 
     #[test]
     fn test_day4_step1() {
-        let data = r#"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
+        let data = r"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
 22 13 17 11  0
  8  2 23  4 24
@@ -202,7 +202,7 @@ mod tests {
 10 16 15  9 19
 18  8 23 26 20
 22 11 13  6  5
- 2  0 12  3  7"#;
+ 2  0 12  3  7";
 
         let (draw, mut cards) = extract_data(data);
 
@@ -211,7 +211,7 @@ mod tests {
 
     #[test]
     fn test_day4_step2() {
-        let data = r#"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
+        let data = r"7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
 
 22 13 17 11  0
  8  2 23  4 24
@@ -229,7 +229,7 @@ mod tests {
 10 16 15  9 19
 18  8 23 26 20
 22 11 13  6  5
- 2  0 12  3  7"#;
+ 2  0 12  3  7";
 
         let (draw, mut cards) = extract_data(data);
 

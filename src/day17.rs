@@ -173,8 +173,8 @@ pub fn main() -> Result<(), AocError> {
             (cur_max, count)
         });
 
-    println!("{:?}", part_1);
-    println!("{:?}", part_2);
+    println!("{part_1:?}");
+    println!("{part_2:?}");
 
     let elapsed = now.elapsed();
     println!("Exec time: {} \u{b5}s", elapsed.as_micros());

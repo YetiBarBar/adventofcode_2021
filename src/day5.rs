@@ -220,7 +220,7 @@ mod tests {
 
     #[test]
     fn test_day5_step1() {
-        let values = r#"0,9 -> 5,9
+        let values = r"0,9 -> 5,9
 8,0 -> 0,8
 9,4 -> 3,4
 2,2 -> 2,1
@@ -229,7 +229,7 @@ mod tests {
 0,9 -> 2,9
 3,4 -> 1,4
 0,0 -> 8,8
-5,5 -> 8,2"#;
+5,5 -> 8,2";
 
         let input: Vec<_> = values
             .lines()
@@ -239,7 +239,7 @@ mod tests {
     }
     #[test]
     fn test_day5_step2() {
-        let values = r#"0,9 -> 5,9
+        let values = r"0,9 -> 5,9
 8,0 -> 0,8
 9,4 -> 3,4
 2,2 -> 2,1
@@ -248,7 +248,7 @@ mod tests {
 0,9 -> 2,9
 3,4 -> 1,4
 0,0 -> 8,8
-5,5 -> 8,2"#;
+5,5 -> 8,2";
 
         let input: Vec<_> = values
             .lines()

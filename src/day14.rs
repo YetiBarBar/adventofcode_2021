@@ -86,7 +86,7 @@ pub fn process(data: &str, steps: usize) -> usize {
         .fold(message, |acc, _| acc.grow(&hmap))
         .min_max(first, last);
 
-    println!("Min: {}, Max: {}", min, max);
+    println!("Min: {min}, Max: {max}");
     max - min
 }
 
@@ -151,7 +151,7 @@ mod tests {
 
     #[test]
     fn test_day1_step1() {
-        let data = r#"NNCB
+        let data = r"NNCB
 
 CH -> B
 HH -> N
@@ -168,7 +168,7 @@ BN -> B
 BB -> N
 BC -> B
 CC -> N
-CN -> C"#;
+CN -> C";
 
         assert_eq!(part_1(data), 1588);
     }

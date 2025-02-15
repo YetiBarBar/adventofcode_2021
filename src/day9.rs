@@ -91,14 +91,14 @@ mod tests {
 
     #[test]
     fn test_day9_part1() {
-        let input_data = r#"2199943210
+        let input_data = r"2199943210
 3987894921
 9856789892
 8767896789
-9899965678"#;
+9899965678";
         let input_data = input_data
             .lines()
-            .map(|s| s.to_string())
+            .map(std::string::ToString::to_string)
             .collect::<Vec<String>>();
 
         let (width, height) = (input_data.first().unwrap().len(), input_data.len());
@@ -116,14 +116,14 @@ mod tests {
 
     #[test]
     fn test_day9_part2() {
-        let input_data = r#"2199943210
+        let input_data = r"2199943210
 3987894921
 9856789892
 8767896789
-9899965678"#;
+9899965678";
         let input_data = input_data
             .lines()
-            .map(|s| s.to_string())
+            .map(std::string::ToString::to_string)
             .collect::<Vec<String>>();
 
         let (width, height) = (input_data.first().unwrap().len(), input_data.len());

@@ -42,7 +42,7 @@ impl Display for CaseStatus {
             CaseStatus::Full => '\u{2588}',
             CaseStatus::Empty => ' ',
         };
-        write!(f, "{}", c)
+        write!(f, "{c}")
     }
 }
 
@@ -217,7 +217,7 @@ mod tests {
 
     #[test]
     fn test_day12_part_1() {
-        let input_data = r#"6,10
+        let input_data = r"6,10
 0,14
 9,10
 0,3
@@ -234,7 +234,7 @@ mod tests {
 1,10
 2,14
 8,10
-9,0"#;
+9,0";
 
         let points = input_data
             .lines()

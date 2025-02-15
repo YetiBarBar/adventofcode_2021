@@ -128,7 +128,7 @@ mod tests {
 
     #[test]
     fn test_day10_part1() {
-        let input_data = r#"[({(<(())[]>[[{[]{<()<>>
+        let input_data = r"[({(<(())[]>[[{[]{<()<>>
 [(()[<>])]({[<{<<[]>>(
 {([(<{}[<>[]}>{[]{[(<()>
 (((({<>}<{<{<>}{[]{[]{}
@@ -137,11 +137,11 @@ mod tests {
 {<[[]]>}<{[{[{[]{()[[[]
 [<(<(<(<{}))><([]([]()
 <{([([[(<>()){}]>(<<{{
-<{([{{}}[<[[[<>{}]]]>[]]"#;
+<{([{{}}[<[[[<>{}]]]>[]]";
 
         let input_data = input_data
             .lines()
-            .map(|s| s.to_string())
+            .map(std::string::ToString::to_string)
             .collect::<Vec<String>>();
 
         assert_eq!(part_1(&input_data), 26397);
@@ -149,7 +149,7 @@ mod tests {
 
     #[test]
     fn test_day10_part2() {
-        let input_data = r#"[({(<(())[]>[[{[]{<()<>>
+        let input_data = r"[({(<(())[]>[[{[]{<()<>>
 [(()[<>])]({[<{<<[]>>(
 {([(<{}[<>[]}>{[]{[(<()>
 (((({<>}<{<{<>}{[]{[]{}
@@ -158,11 +158,11 @@ mod tests {
 {<[[]]>}<{[{[{[]{()[[[]
 [<(<(<(<{}))><([]([]()
 <{([([[(<>()){}]>(<<{{
-<{([{{}}[<[[[<>{}]]]>[]]"#;
+<{([{{}}[<[[[<>{}]]]>[]]";
 
         let input_data = input_data
             .lines()
-            .map(|s| s.to_string())
+            .map(std::string::ToString::to_string)
             .collect::<Vec<String>>();
 
         assert_eq!(part_2(&input_data), Some(288957));

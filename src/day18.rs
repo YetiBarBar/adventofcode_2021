@@ -14,7 +14,7 @@ struct SnailPair(SnailNumber, SnailNumber);
 impl Display for SnailNumber {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SnailNumber::Literal(literal) => write!(f, "{}", literal),
+            SnailNumber::Literal(literal) => write!(f, "{literal}"),
             SnailNumber::Pair(pair) => write!(f, "[{},{}]", &pair.0, &pair.1),
         }
     }
@@ -51,7 +51,7 @@ impl SnailPair {
     }
 
     fn explode(&mut self) -> bool {
-        !matches!(self.process_explode(0), None)
+        self.process_explode(0).is_some()
     }
 
     fn split(&mut self) -> bool {
@@ -230,7 +230,7 @@ mod tests {
 
     #[test]
     fn test_day18_step1() {
-        let raw = r#"[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
+        let raw = r"[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
 [[[5,[2,8]],4],[5,[[9,9],0]]]
 [6,[[[6,2],[5,6]],[[7,6],[4,7]]]]
 [[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]
@@ -239,7 +239,7 @@ mod tests {
 [[[[5,4],[7,7]],8],[[8,3],8]]
 [[9,3],[[9,9],[6,[4,9]]]]
 [[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]
-[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]"#;
+[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]";
 
         let values = raw
             .lines()
@@ -262,7 +262,7 @@ mod tests {
 
     #[test]
     fn test_day18_step2() {
-        let raw = r#"[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
+        let raw = r"[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
 [[[5,[2,8]],4],[5,[[9,9],0]]]
 [6,[[[6,2],[5,6]],[[7,6],[4,7]]]]
 [[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]
@@ -271,7 +271,7 @@ mod tests {
 [[[[5,4],[7,7]],8],[[8,3],8]]
 [[9,3],[[9,9],[6,[4,9]]]]
 [[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]
-[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]"#;
+[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]";
 
         let values = raw
             .lines()

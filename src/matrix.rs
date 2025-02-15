@@ -266,7 +266,7 @@ mod tests {
         };
 
         let rows = data.rows();
-        assert_eq!(rows, vec![vec![0, 1, 2, 3, 4], vec![5, 6, 7, 8, 9]])
+        assert_eq!(rows, vec![vec![0, 1, 2, 3, 4], vec![5, 6, 7, 8, 9]]);
     }
 
     #[test]
@@ -281,7 +281,7 @@ mod tests {
         assert_eq!(
             cols,
             vec![vec![0, 5], vec![1, 6], vec![2, 7], vec![3, 8], vec![4, 9]]
-        )
+        );
     }
 
     #[test]
